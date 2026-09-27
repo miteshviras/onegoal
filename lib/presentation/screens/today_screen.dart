@@ -48,7 +48,26 @@ class TodayScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const FocusGlyph(size: 34),
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0E5FC3).withValues(alpha: 0.4),
+                              blurRadius: 10,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/app_logo.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,15 +131,20 @@ class TodayScreen extends ConsumerWidget {
                         ),
                       ),
                       child: ClipOval(
-                        child: Image.network(
-                          userProfile.avatarUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(
-                            Icons.person,
-                            color: AppColors.darkOnSurface,
-                            size: 20,
-                          ),
-                        ),
+                        child: userProfile.avatarUrl.startsWith('assets/')
+                            ? Image.asset(userProfile.avatarUrl, fit: BoxFit.cover)
+                            : Image.network(
+                                userProfile.avatarUrl.isNotEmpty
+                                    ? userProfile.avatarUrl
+                                    : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80',
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                  Icons.person,
+                                  color: AppColors.darkOnSurface,
+                                  size: 20,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -177,15 +201,20 @@ class TodayScreen extends ConsumerWidget {
                     ),
                   ),
                   child: ClipOval(
-                    child: Image.network(
-                      'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.spa,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
-                    ),
+                    child: userProfile.avatarUrl.startsWith('assets/')
+                        ? Image.asset(userProfile.avatarUrl, fit: BoxFit.cover)
+                        : Image.network(
+                            userProfile.avatarUrl.isNotEmpty
+                                ? userProfile.avatarUrl
+                                : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                              Icons.spa,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -568,6 +597,22 @@ class TodayScreen extends ConsumerWidget {
                                                         .notifier)
                                                 .pause();
                                           } else {
+                                            if (inFocusTask != null &&
+                                                (timerState.status ==
+                                                        TimerStatus.initial ||
+                                                    timerState.taskTitle !=
+                                                        inFocusTask.title)) {
+                                              ref
+                                                  .read(
+                                                      focusTimerNotifierProvider
+                                                          .notifier)
+                                                  .setTaskAndDuration(
+                                                    inFocusTask.title,
+                                                    inFocusTask.durationMinutes,
+                                                    subtitle:
+                                                        inFocusTask.subtitle,
+                                                  );
+                                            }
                                             ref
                                                 .read(
                                                     focusTimerNotifierProvider

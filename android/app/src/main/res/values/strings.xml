@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OneGoal</string>
+    <string name="widget_name">Focus Timer</string>
+    <string name="widget_description">Real-time mindful focus sprint timer and active micro-step.</string>
+</resources>

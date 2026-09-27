@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/services/lockscreen_timer_service.dart';
 import '../../core/services/storage_service.dart';
 import '../../data/models/goal.dart';
 import '../../data/models/task_item.dart';
@@ -179,6 +180,15 @@ class TasksNotifier extends Notifier<TasksState> {
     state = state.copyWith(isLoading: true);
     final tasks = await _repo.getTasks();
     state = state.copyWith(tasks: tasks, isLoading: false);
+    final inFocus = state.inFocusTask;
+    if (inFocus != null) {
+      LockscreenTimerService().updateActiveTask(
+        taskTitle: inFocus.title,
+        subtitle: inFocus.subtitle,
+        durationMinutes: inFocus.durationMinutes,
+      );
+    }
+    LockscreenTimerService().syncDailyTasks(tasks);
   }
 
   Future<void> toggleTask(String taskId) async {
@@ -219,12 +229,14 @@ class FocusTimerState {
   final int remainingSeconds;
   final TimerStatus status;
   final String taskTitle;
+  final String subtitle;
 
   FocusTimerState({
     this.totalSeconds = 25 * 60,
     this.remainingSeconds = 25 * 60,
     this.status = TimerStatus.initial,
-    this.taskTitle = 'Deploy staging preview on Vercel',
+    this.taskTitle = 'Add your first focus step',
+    this.subtitle = 'Break down your goal into calm micro-steps',
   });
 
   String get formattedTime {
@@ -242,34 +254,62 @@ class FocusTimerState {
     int? remainingSeconds,
     TimerStatus? status,
     String? taskTitle,
+    String? subtitle,
   }) {
     return FocusTimerState(
       totalSeconds: totalSeconds ?? this.totalSeconds,
       remainingSeconds: remainingSeconds ?? this.remainingSeconds,
       status: status ?? this.status,
       taskTitle: taskTitle ?? this.taskTitle,
+      subtitle: subtitle ?? this.subtitle,
     );
   }
 }
 
 class FocusTimerNotifier extends Notifier<FocusTimerState> {
   Timer? _timer;
+  LockscreenActionCallback? _lockscreenCallback;
 
   @override
   FocusTimerState build() {
+    _lockscreenCallback = (action) {
+      if (action == 'pause') {
+        pause();
+      } else if (action == 'resume') {
+        startOrResume();
+      } else if (action == 'complete') {
+        pause();
+        final currentInFocus = ref.read(tasksNotifierProvider).inFocusTask;
+        if (currentInFocus != null) {
+          ref.read(tasksNotifierProvider.notifier).toggleTask(currentInFocus.id);
+        }
+      }
+    };
+
+    LockscreenTimerService().addListener(_lockscreenCallback!);
+
     ref.onDispose(() {
       _timer?.cancel();
+      if (_lockscreenCallback != null) {
+        LockscreenTimerService().removeListener(_lockscreenCallback!);
+      }
     });
     return FocusTimerState();
   }
 
-  void setTaskAndDuration(String title, int minutes) {
+  void setTaskAndDuration(String title, int minutes, {String subtitle = ''}) {
     _timer?.cancel();
     state = FocusTimerState(
       totalSeconds: minutes * 60,
       remainingSeconds: minutes * 60,
       status: TimerStatus.initial,
       taskTitle: title,
+      subtitle: subtitle,
+    );
+    LockscreenTimerService().updateActiveTask(
+      taskTitle: title,
+      subtitle: subtitle,
+      durationMinutes: minutes,
     );
   }
 
@@ -277,6 +317,13 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
     if (state.status == TimerStatus.running) return;
 
     state = state.copyWith(status: TimerStatus.running);
+    LockscreenTimerService().startTimer(
+      taskTitle: state.taskTitle,
+      subtitle: state.subtitle,
+      remainingSeconds: state.remainingSeconds,
+      totalSeconds: state.totalSeconds,
+    );
+
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.remainingSeconds > 0) {
@@ -284,6 +331,7 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
       } else {
         _timer?.cancel();
         state = state.copyWith(status: TimerStatus.completed);
+        LockscreenTimerService().stopTimer();
       }
     });
   }
@@ -291,6 +339,11 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
   void pause() {
     _timer?.cancel();
     state = state.copyWith(status: TimerStatus.paused);
+    LockscreenTimerService().pauseTimer(
+      taskTitle: state.taskTitle,
+      subtitle: state.subtitle,
+      remainingSeconds: state.remainingSeconds,
+    );
   }
 
   void reset() {
@@ -299,6 +352,7 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
       remainingSeconds: state.totalSeconds,
       status: TimerStatus.initial,
     );
+    LockscreenTimerService().stopTimer();
   }
 }
 
@@ -421,10 +475,14 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     required String eveningTime,
     required int focusDuration,
     required bool calmNotifications,
+    String? avatarUrl,
+    String? coachingTone,
   }) async {
     state = state.copyWith(
       name: name,
       title: title,
+      avatarUrl: avatarUrl ?? state.avatarUrl,
+      coachingTone: coachingTone ?? state.coachingTone,
       eveningRitualTime: eveningTime,
       focusTimerMinutes: focusDuration,
       calmNotificationsEnabled: calmNotifications,

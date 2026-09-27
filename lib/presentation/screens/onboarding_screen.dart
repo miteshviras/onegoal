@@ -6,7 +6,6 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/goal.dart';
 import '../../data/models/task_item.dart';
 import '../providers/app_providers.dart';
-import '../widgets/focus_glyph.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,14 +18,57 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // Step 2 state
+  // Step 2 state (Profile Customization)
   final TextEditingController _nameController =
-      TextEditingController(text: 'Builder');
+      TextEditingController(text: '');
   final TextEditingController _titleController =
-      TextEditingController(text: 'Independent Creator');
+      TextEditingController(text: '');
+  String _selectedAvatar = 'assets/images/app_logo.png';
+  String _coachingTone = 'gentle'; // 'gentle' | 'concise'
   String _morningTime = '08:30 AM';
   String _eveningTime = '08:30 PM';
   int _focusDuration = 25;
+
+  final List<Map<String, String>> _avatarPresets = [
+    {
+      'label': 'Orbit',
+      'url': 'assets/images/app_logo.png',
+      'isAsset': 'true',
+    },
+    {
+      'label': 'Zen',
+      'url':
+          'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
+      'isAsset': 'false',
+    },
+    {
+      'label': 'Creator',
+      'url':
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      'isAsset': 'false',
+    },
+    {
+      'label': 'Builder',
+      'url':
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+      'isAsset': 'false',
+    },
+    {
+      'label': 'Focus',
+      'url':
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+      'isAsset': 'false',
+    },
+  ];
+
+  final List<String> _roleSuggestions = [
+    'Founder',
+    'Software Engineer',
+    'Product Designer',
+    'Creator',
+    'Researcher',
+    'Writer',
+  ];
 
   // Step 3 state (Permissions)
   bool _notificationsAllowed = true;
@@ -68,9 +110,48 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  String _formatTimeOfDay(TimeOfDay tod) {
+    final hour = tod.hourOfPeriod == 0 ? 12 : tod.hourOfPeriod;
+    final minute = tod.minute.toString().padLeft(2, '0');
+    final period = tod.period == DayPeriod.am ? 'AM' : 'PM';
+    return '${hour.toString().padLeft(2, '0')}:$minute $period';
+  }
+
+  Future<void> _pickTime({required bool isMorning}) async {
+    final initial = isMorning
+        ? const TimeOfDay(hour: 8, minute: 30)
+        : const TimeOfDay(hour: 20, minute: 30);
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.fidelityDarkAccent,
+              surface: AppColors.fidelityDarkCard,
+              onSurface: AppColors.fidelityDarkText,
+            ),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+    );
+    if (picked != null) {
+      final formatted = _formatTimeOfDay(picked);
+      setState(() {
+        if (isMorning) {
+          _morningTime = formatted;
+        } else {
+          _eveningTime = formatted;
+        }
+      });
+    }
+  }
+
   Future<void> _finishOnboarding() async {
     final name = _nameController.text.trim().isEmpty
-        ? 'Friend'
+        ? 'Alex Rivera'
         : _nameController.text.trim();
     final title = _titleController.text.trim().isEmpty
         ? 'Intentional Builder'
@@ -120,10 +201,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
     }
 
-    // 3. Complete User Profile (triggers navigation to MainScaffoldScreen)
+    // 3. Complete User Profile with customized data
     await ref.read(userProfileNotifierProvider.notifier).completeOnboarding(
           name: name,
           title: title,
+          avatarUrl: _selectedAvatar,
+          coachingTone: _coachingTone,
           eveningTime: _eveningTime,
           focusDuration: _focusDuration,
           calmNotifications: _notificationsAllowed,
@@ -269,7 +352,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         children: [
           const SizedBox(height: 20),
           Center(
-            child: const FocusGlyph(size: 80),
+            child: Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0E5FC3).withValues(alpha: 0.45),
+                    blurRadius: 28,
+                    spreadRadius: 4,
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/app_logo.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 32),
           Text(
@@ -387,7 +489,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         children: [
           const SizedBox(height: 16),
           Text(
-            'Personalize Your Space',
+            'Personalize Your Profile',
             style: GoogleFonts.manrope(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -397,14 +499,98 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tailor your companion, ritual times, and focus block duration.',
+            'Choose your avatar, rhythm, and companion coaching tone.',
             style: GoogleFonts.manrope(
               fontSize: 14,
               color: AppColors.fidelityDarkMutedText,
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
 
+          // 1. Choose Avatar
+          Text(
+            'CHOOSE YOUR AVATAR',
+            style: GoogleFonts.manrope(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.1,
+              color: AppColors.fidelityDarkMutedText,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 84,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _avatarPresets.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 14),
+              itemBuilder: (context, index) {
+                final preset = _avatarPresets[index];
+                final isSelected = _selectedAvatar == preset['url'];
+                final isAsset = preset['isAsset'] == 'true';
+
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedAvatar = preset['url']!),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 58,
+                        height: 58,
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.fidelityDarkAccent
+                                : AppColors.fidelityDarkBorder
+                                    .withValues(alpha: 0.5),
+                            width: isSelected ? 2.5 : 1.2,
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.fidelityDarkAccent
+                                        .withValues(alpha: 0.4),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: ClipOval(
+                          child: isAsset
+                              ? Image.asset(preset['url']!, fit: BoxFit.cover)
+                              : Image.network(
+                                  preset['url']!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.person,
+                                          color: AppColors.fidelityDarkAccent),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        preset['label']!,
+                        style: GoogleFonts.manrope(
+                          fontSize: 11,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.fidelityDarkAccent
+                              : AppColors.fidelityDarkMutedText,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // 2. Name
           Text(
             'YOUR NAME',
             style: GoogleFonts.manrope(
@@ -419,7 +605,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             controller: _nameController,
             style: GoogleFonts.manrope(color: AppColors.fidelityDarkText),
             decoration: InputDecoration(
-              hintText: 'Enter your name',
+              hintText: 'Enter your name (e.g. Alex Rivera)',
+              hintStyle: GoogleFonts.manrope(
+                color: AppColors.fidelityDarkMutedText.withValues(alpha: 0.6),
+              ),
               prefixIcon: const Icon(Icons.person_outline,
                   color: AppColors.fidelityDarkMutedText),
               filled: true,
@@ -438,6 +627,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 20),
 
+          // 3. Role / Craft with suggestions
           Text(
             'ROLE / CRAFT',
             style: GoogleFonts.manrope(
@@ -453,6 +643,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             style: GoogleFonts.manrope(color: AppColors.fidelityDarkText),
             decoration: InputDecoration(
               hintText: 'e.g. Designer, Software Engineer, Founder',
+              hintStyle: GoogleFonts.manrope(
+                color: AppColors.fidelityDarkMutedText.withValues(alpha: 0.6),
+              ),
               prefixIcon: const Icon(Icons.workspace_premium_outlined,
                   color: AppColors.fidelityDarkMutedText),
               filled: true,
@@ -469,8 +662,79 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: _roleSuggestions.map((role) {
+              final isMatch = _titleController.text == role;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _titleController.text = role;
+                  });
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: isMatch
+                        ? AppColors.fidelityDarkAccent.withValues(alpha: 0.2)
+                        : AppColors.fidelityDarkCard,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isMatch
+                          ? AppColors.fidelityDarkAccent
+                          : AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Text(
+                    role,
+                    style: GoogleFonts.manrope(
+                      fontSize: 11,
+                      fontWeight: isMatch ? FontWeight.w700 : FontWeight.w500,
+                      color: isMatch
+                          ? AppColors.fidelityDarkAccent
+                          : AppColors.fidelityDarkMutedText,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
           const SizedBox(height: 24),
 
+          // 4. Companion Coaching Tone
+          Text(
+            'COMPANION COACHING TONE',
+            style: GoogleFonts.manrope(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.1,
+              color: AppColors.fidelityDarkMutedText,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _buildToneCard(
+                tone: 'gentle',
+                title: 'Supportive & Gentle',
+                subtitle: 'Mindful nudges, positive reinforcement',
+                icon: Icons.favorite_rounded,
+              ),
+              const SizedBox(width: 10),
+              _buildToneCard(
+                tone: 'concise',
+                title: 'Direct & Concise',
+                subtitle: 'Action-first, minimal text, direct cues',
+                icon: Icons.bolt_rounded,
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // 5. Focus Sprint Length
           Text(
             'FOCUS SPRINT LENGTH',
             style: GoogleFonts.manrope(
@@ -492,6 +756,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 24),
 
+          // 6. Daily Rhythms with actual TimePicker
           Text(
             'DAILY RHYTHMS',
             style: GoogleFonts.manrope(
@@ -502,15 +767,84 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          _buildTimeRow('Morning Planning', _morningTime, (time) {
-            setState(() => _morningTime = time);
+          _buildTimeRow('Morning Planning', _morningTime, () {
+            _pickTime(isMorning: true);
           }),
           const SizedBox(height: 10),
-          _buildTimeRow('Evening Reflection', _eveningTime, (time) {
-            setState(() => _eveningTime = time);
+          _buildTimeRow('Evening Reflection', _eveningTime, () {
+            _pickTime(isMorning: false);
           }),
           const SizedBox(height: 20),
         ],
+      ),
+    );
+  }
+
+  Widget _buildToneCard({
+    required String tone,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    final isSelected = _coachingTone == tone;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _coachingTone = tone),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.fidelityDarkAccent.withValues(alpha: 0.15)
+                : AppColors.fidelityDarkCard,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.fidelityDarkAccent
+                  : AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+              width: isSelected ? 1.8 : 1.0,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    icon,
+                    size: 18,
+                    color: isSelected
+                        ? AppColors.fidelityDarkAccent
+                        : AppColors.fidelityDarkMutedText,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.fidelityDarkText,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                style: GoogleFonts.manrope(
+                  fontSize: 10,
+                  color: AppColors.fidelityDarkMutedText,
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -548,43 +882,66 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  Widget _buildTimeRow(String label, String value, Function(String) onSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.fidelityDarkCard,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.manrope(
-              fontSize: 14,
-              color: AppColors.fidelityDarkText,
-              fontWeight: FontWeight.w600,
-            ),
+  Widget _buildTimeRow(String label, String value, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.fidelityDarkCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.fidelityDarkAccent.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.access_time_rounded,
+                  size: 18,
+                  color: AppColors.fidelityDarkMutedText,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: GoogleFonts.manrope(
+                    fontSize: 14,
+                    color: AppColors.fidelityDarkText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
-            child: Text(
-              value,
-              style: GoogleFonts.manrope(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.fidelityDarkAccent,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.fidelityDarkAccent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    value,
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.fidelityDarkAccent,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    size: 16,
+                    color: AppColors.fidelityDarkAccent,
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

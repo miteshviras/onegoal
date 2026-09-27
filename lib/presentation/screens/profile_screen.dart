@@ -283,15 +283,20 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
                           ),
                         ),
                         child: ClipOval(
-                          child: Image.network(
-                            profile.avatarUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => const Icon(
-                              Icons.person,
-                              color: AppColors.primary,
-                              size: 44,
-                            ),
-                          ),
+                          child: profile.avatarUrl.startsWith('assets/')
+                              ? Image.asset(profile.avatarUrl, fit: BoxFit.cover)
+                              : Image.network(
+                                  profile.avatarUrl.isNotEmpty
+                                      ? profile.avatarUrl
+                                      : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(
+                                    Icons.person,
+                                    color: AppColors.primary,
+                                    size: 44,
+                                  ),
+                                ),
                         ),
                       ),
                       Positioned(
