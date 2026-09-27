@@ -65,107 +65,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showExportDataDialog(BuildContext context, WidgetRef ref) {
-    HapticFeedback.selectionClick();
-    final goals = ref.read(goalsNotifierProvider).goals;
-    final tasks = ref.read(tasksNotifierProvider).tasks;
 
-    final markdownExport = '''
-# OneGoal — Mindful Export
-Generated: ${DateTime.now().toLocal()}
-
-## Active & Past Goals (${goals.length})
-${goals.map((g) => '- [${(g.progress * 100).toInt()}%] **${g.title}** (${g.category})\n  *Affirmation:* "${g.affirmation}"').join('\n')}
-
-## Daily Flow Tasks (${tasks.length})
-${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${t.title}** (${t.durationMinutes}m)').join('\n')}
-''';
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: AppColors.darkSurfaceContainer,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Export Goals & Journal',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkOnSurface,
-                      ),
-                    ),
-                    IconButton(
-                      icon:
-                          const Icon(Icons.close, color: AppColors.darkOutline),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Your goals and reflections stored securely on device.',
-                  style: TextStyle(fontSize: 12, color: AppColors.darkOutline),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.darkSurfaceContainerLow,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Text(
-                      markdownExport,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 11,
-                        color: AppColors.darkOnSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: markdownExport));
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied export data to clipboard!'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.copy, size: 18),
-                    label: const Text('Copy to Clipboard'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primaryContainer,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   void _showMindfulBreakDialog(BuildContext context, WidgetRef ref) {
     HapticFeedback.selectionClick();
@@ -690,28 +590,6 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
               child: Column(
                 children: [
                   _buildNavigationTile(
-                    icon: Icons.palette,
-                    title: 'Theme',
-                    subtitle: profile.themeMode == 'dark'
-                        ? 'Fidelity Dark System'
-                        : (profile.themeMode == 'light'
-                            ? 'Paper Studio Warm Light'
-                            : 'System Auto'),
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                      color: AppColors.darkOutline,
-                      size: 20,
-                    ),
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      final next = profile.themeMode == 'dark'
-                          ? 'light'
-                          : 'dark';
-                      notifier.setThemeMode(next);
-                    },
-                  ),
-                  _buildDivider(),
-                  _buildNavigationTile(
                     icon: Icons.vibration,
                     title: 'Haptics & Motion',
                     subtitle: 'Gentle click feedback on completion',
@@ -726,18 +604,6 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
                     onTap: () {
                       HapticFeedback.lightImpact();
                     },
-                  ),
-                  _buildDivider(),
-                  _buildNavigationTile(
-                    icon: Icons.download,
-                    title: 'Export Goals & Journal',
-                    subtitle: 'JSON, Markdown, and CSV archive',
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                      color: AppColors.darkOutline,
-                      size: 20,
-                    ),
-                    onTap: () => _showExportDataDialog(context, ref),
                   ),
                   _buildDivider(),
                   _buildNavigationTile(

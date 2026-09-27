@@ -240,8 +240,12 @@ class FocusTimerState {
   });
 
   String get formattedTime {
-    final mins = remainingSeconds ~/ 60;
+    final hours = remainingSeconds ~/ 3600;
+    final mins = (remainingSeconds % 3600) ~/ 60;
     final secs = remainingSeconds % 60;
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    }
     return '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
@@ -512,10 +516,6 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     await _repo.saveUserProfile(state);
   }
 
-  Future<void> setThemeMode(String themeMode) async {
-    state = state.copyWith(themeMode: themeMode);
-    await _repo.saveUserProfile(state);
-  }
 
   Future<void> setFocusDuration(int minutes) async {
     state = state.copyWith(focusTimerMinutes: minutes);

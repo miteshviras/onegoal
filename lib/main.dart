@@ -29,26 +29,12 @@ class OneGoalApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userProfile = ref.watch(userProfileNotifierProvider);
 
-    ThemeMode themeMode;
-    switch (userProfile.themeMode) {
-      case 'light':
-        themeMode = ThemeMode.light;
-        break;
-      case 'system':
-        themeMode = ThemeMode.system;
-        break;
-      case 'dark':
-      default:
-        themeMode = ThemeMode.dark;
-        break;
-    }
-
     return MaterialApp(
       title: 'OneGoal - Mindful Daily Planner',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.darkTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
+      themeMode: ThemeMode.dark,
       home: userProfile.hasCompletedOnboarding
           ? const MainScaffoldScreen()
           : const OnboardingScreen(),

@@ -8,11 +8,12 @@
     android:padding="0dp">
 
     <!-- Left accent focus strip -->
-    <View
+    <ImageView
         android:id="@+id/widget_accent_strip"
         android:layout_width="5dp"
         android:layout_height="match_parent"
-        android:background="#0E5FC3" />
+        android:background="#0E5FC3"
+        android:contentDescription="@null" />
 
     <!-- Card Inner Content -->
     <LinearLayout

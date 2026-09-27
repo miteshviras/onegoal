@@ -23,9 +23,14 @@ object FocusTimerStateHolder {
 
     val formattedTime: String
         get() {
-            val mins = remainingSeconds / 60
+            val hours = remainingSeconds / 3600
+            val mins = (remainingSeconds % 3600) / 60
             val secs = remainingSeconds % 60
-            return String.format("%02d:%02d", mins, secs)
+            return if (hours > 0) {
+                String.format("%02d:%02d:%02d", hours, mins, secs)
+            } else {
+                String.format("%02d:%02d", mins, secs)
+            }
         }
 
     val remainingTaskCount: Int

@@ -48,6 +48,7 @@ class AppColors {
   static const Color successEmeraldDark = Color(0xFF059669);
   static const Color warningAmber = Color(0xFFF59E0B);
   static const Color errorMuted = Color(0xFFEF4444);
+  static const Color error = errorMuted;
   
   // Motivational Moments Accent Gradient
   static const Color accentPurpleStart = Color(0xFF7C3AED);
