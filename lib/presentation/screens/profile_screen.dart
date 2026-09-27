@@ -501,7 +501,6 @@ class ProfileScreen extends ConsumerWidget {
                   color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
                 ),
               ),
-              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   _buildSwitchTile(
@@ -515,97 +514,104 @@ class ProfileScreen extends ConsumerWidget {
                     },
                   ),
                   _buildDivider(),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: AppColors.darkSurfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(10),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.darkSurfaceContainerHigh,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(
+                                    Icons.sentiment_satisfied,
+                                    color: AppColors.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      'Coaching Tone',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.darkOnSurface,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'How prompts speak to you',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.darkOutline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            child: const Icon(
-                              Icons.sentiment_satisfied,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                'Coaching Tone',
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryContainer.withValues(
+                                  alpha: 0.3,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Text(
+                                'Active',
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkOnSurface,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
                                 ),
                               ),
-                              Text(
-                                'How prompts speak to you',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.darkOutline,
-                                ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildTonePill(
+                                title: 'Supportive & Gentle',
+                                icon: Icons.favorite,
+                                isSelected: profile.coachingTone == 'gentle',
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  notifier.setCoachingTone('gentle');
+                                },
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _buildTonePill(
+                                title: 'Direct & Concise',
+                                icon: Icons.qr_code_2,
+                                isSelected: profile.coachingTone == 'concise',
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  notifier.setCoachingTone('concise');
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryContainer.withValues(
-                            alpha: 0.3,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Text(
-                          'Active',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTonePill(
-                          title: 'Supportive & Gentle',
-                          icon: Icons.favorite,
-                          isSelected: profile.coachingTone == 'gentle',
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            notifier.setCoachingTone('gentle');
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildTonePill(
-                          title: 'Direct & Concise',
-                          icon: Icons.qr_code_2,
-                          isSelected: profile.coachingTone == 'concise',
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            notifier.setCoachingTone('concise');
-                          },
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
