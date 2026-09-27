@@ -450,6 +450,14 @@ class ProgressState {
     this.focusHours = 14.5,
   });
 
+  String get formattedFocusHours {
+    if (focusHours == 0) return '0';
+    if (focusHours == focusHours.truncateToDouble()) {
+      return focusHours.toInt().toString();
+    }
+    return focusHours.toStringAsFixed(1);
+  }
+
   ProgressState copyWith({
     List<QuietMilestone>? milestones,
     List<DailyReflection>? reflections,

@@ -1,12 +1,22 @@
 # OneGoal — Mindful Daily Goal Planner
 
 <p align="center">
-  <img src="assets/images/logo.png" alt="OneGoal Logo" width="100" onerror="this.style.display='none'"/>
+  <img src="assets/images/app_logo.png" alt="OneGoal Logo" width="120" />
 </p>
 
 <p align="center">
   <strong>“One Goal. One Day. One Next Step.”</strong><br>
   An open-source, mindful productivity app engineered to feel like a calm personal coach rather than an overwhelming task manager.
+</p>
+
+<p align="center">
+  <a href="https://github.com/miteshviras/onegoal/releases/latest/download/onegoal.apk">
+    <img src="https://img.shields.io/badge/⚡_Download_APK-onegoal.apk-2ea44f?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Download APK" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/miteshviras/onegoal/releases">
+    <img src="https://img.shields.io/badge/📦_GitHub-Releases-181717?style=for-the-badge&logo=github&logoColor=white" height="42" alt="GitHub Releases" />
+  </a>
 </p>
 
 <p align="center">
@@ -17,6 +27,18 @@
   <a href="https://github.com/miteshviras/onegoal/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey" alt="Cross Platform">
 </p>
+
+---
+
+## 🧘 Why OneGoal? (The Philosophy)
+
+Traditional productivity systems trap users in an anxiety loop of infinite to-do lists, overdue badges, and fragile streaks. When life interrupts, falling behind creates shame and abandonment.
+
+**OneGoal takes a behavioral-first approach:**
+- **The Rule of One**: You accomplish more by completing **one intentional mission** every day than carrying forward twenty unfinished tasks.
+- **Zero Guilt Triggers**: Uncompleted tasks roll forward gracefully during the Evening Reflection ritual with zero shame badges.
+- **Cognitive Guardrails**: Active quarterly horizons are strictly capped at 3 slots to avoid burnout.
+- **Proof of Self-Trust**: Progress is measured in calm consistency and quiet milestones rather than gamified points.
 
 ---
 
@@ -36,15 +58,30 @@
 
 ---
 
-## 🧘 Why OneGoal? (The Philosophy)
+## 📥 Download & Install APK
 
-Traditional productivity systems trap users in an anxiety loop of infinite to-do lists, overdue badges, and fragile streaks. When life interrupts, falling behind creates shame and abandonment.
+Get the latest pre-built APK directly from GitHub Releases:
 
-**OneGoal takes a behavioral-first approach:**
-- **The Rule of One**: You accomplish more by completing **one intentional mission** every day than carrying forward twenty unfinished tasks.
-- **Zero Guilt Triggers**: Uncompleted tasks roll forward gracefully during the Evening Reflection ritual with zero shame badges.
-- **Cognitive Guardrails**: Active quarterly horizons are strictly capped at 3 slots to avoid burnout.
-- **Proof of Self-Trust**: Progress is measured in calm consistency and quiet milestones rather than gamified points.
+<p align="center">
+  <a href="https://github.com/miteshviras/onegoal/releases/latest/download/onegoal.apk">
+    <img src="https://img.shields.io/badge/Direct_Download-onegoal.apk-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download onegoal.apk" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/miteshviras/onegoal/releases">
+    <img src="https://img.shields.io/badge/All_Releases-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="All GitHub Releases" />
+  </a>
+</p>
+
+### How to Install:
+1. **Direct on Android Device:**
+   - Tap **[Download onegoal.apk](https://github.com/miteshviras/onegoal/releases/latest/download/onegoal.apk)** on your Android phone.
+   - Open the downloaded file from your notifications or Downloads folder.
+   - When prompted, grant permission to install from your browser/file manager.
+
+2. **Via ADB (Wi-Fi or USB Debugging):**
+   ```bash
+   adb install -r onegoal.apk
+   ```
 
 ---
 

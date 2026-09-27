@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/services/lockscreen_timer_service.dart';
 import '../../data/models/goal.dart';
 import '../../data/models/task_item.dart';
 import '../providers/app_providers.dart';
@@ -252,7 +253,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.dispose();
   }
 
-  void _nextPage() {
+  Future<void> _nextPage() async {
+    if (_currentPage == 3 && _notificationsAllowed) {
+      await LockscreenTimerService().requestPermission();
+    }
     if (_currentPage < 4) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 350),
@@ -1502,10 +1506,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _buildPermissionToggle(
             icon: Icons.notifications_none_rounded,
             title: 'Quiet Daily Nudges',
-            description: 'Morning check-in at 8:30 AM to set today’s mission, and evening wind-down ritual review.',
+            description:
+                'Morning check-in at 8:30 AM to set today’s mission, and evening wind-down ritual review.',
             value: _notificationsAllowed,
             color: AppColors.fidelityCyan,
-            onChanged: (val) => setState(() => _notificationsAllowed = val),
+            onChanged: (val) async {
+              setState(() => _notificationsAllowed = val);
+              if (val) {
+                await LockscreenTimerService().requestPermission();
+              }
+            },
           ),
           const SizedBox(height: 16),
           _buildPermissionToggle(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:onegoal/main.dart';
+import 'package:onegoal/presentation/providers/app_providers.dart';
 import 'package:onegoal/presentation/screens/main_scaffold_screen.dart';
+import 'package:onegoal/presentation/screens/progress_screen.dart';
 
 void main() {
   testWidgets('OneGoalApp boots up fresh and renders OnboardingScreen', (
@@ -79,5 +81,44 @@ void main() {
     expect(find.text('Your First Mission'), findsOneWidget);
     expect(find.text('Enter Focus Sanctuary ✨'), findsOneWidget);
   });
+
+  testWidgets(
+    'ProgressScreen renders formatted focus hours without overflow on narrow screens',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            progressNotifierProvider.overrideWith(
+              () => _TestProgressNotifier(),
+            ),
+          ],
+          child: const MaterialApp(home: ProgressScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Formatted hours test: 0.4166666666666667 should be formatted to 0.4h
+      expect(find.text('0.4h'), findsOneWidget);
+      expect(find.text('0.4 recorded hours'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+}
+
+class _TestProgressNotifier extends ProgressNotifier {
+  @override
+  ProgressState build() {
+    return ProgressState(
+      focusHours: 25.0 / 60.0, // 0.4166666666666667
+      focusHoursProgress: 0.1,
+      missionsProgress: 0.0,
+      habitsProgress: 1.0,
+      harmonyScore: 0.34,
+    );
+  }
 }
 

@@ -196,36 +196,35 @@ class ProgressScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: AppColors.successEmerald.withValues(
-                            alpha: 0.15,
-                          ),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.spa,
-                          color: AppColors.successEmerald,
-                          size: 14,
-                        ),
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: AppColors.successEmerald.withValues(
+                        alpha: 0.15,
                       ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'WEEKLY RHYTHM',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkOutline,
-                          letterSpacing: 0.6,
-                        ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.spa,
+                      color: AppColors.successEmerald,
+                      size: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'WEEKLY RHYTHM',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.darkOutline,
+                        letterSpacing: 0.6,
                       ),
-                    ],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   TextButton(
                     onPressed: () => _showAllBadgesDialog(context, ref),
@@ -292,9 +291,9 @@ class ProgressScreen extends ConsumerWidget {
                         focusHoursProgress: progress.focusHoursProgress,
                         harmonyPercentage: (progress.harmonyScore * 100)
                             .toInt(),
-                        size: 140,
+                        size: 130,
                       ),
-                      const SizedBox(width: 18),
+                      const SizedBox(width: 14),
                       // Ring breakdown legends
                       Expanded(
                         child: Column(
@@ -319,7 +318,8 @@ class ProgressScreen extends ConsumerWidget {
                             _buildLegendItem(
                               color: AppColors.tertiary,
                               title: 'Intentional Focus',
-                              subtitle: '${progress.focusHours} recorded hours',
+                              subtitle:
+                                  '${progress.formattedFocusHours} recorded hours',
                               value:
                                   '${(progress.focusHoursProgress * 100).toInt()}%',
                             ),
@@ -343,7 +343,7 @@ class ProgressScreen extends ConsumerWidget {
                       Expanded(
                         child: _buildMiniStat(
                           'Deep Work',
-                          '${progress.focusHours}h',
+                          '${progress.formattedFocusHours}h',
                           AppColors.tertiary,
                         ),
                       ),
@@ -393,38 +393,46 @@ class ProgressScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.darkSurfaceContainerLowest
-                              .withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.15),
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
                           ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.verified,
-                              color: AppColors.tertiary,
-                              size: 14,
+                          decoration: BoxDecoration(
+                            color: AppColors.darkSurfaceContainerLowest
+                                .withValues(alpha: 0.4),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.15),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Level ${userProfile.level} • ${userProfile.levelTitle}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.verified,
+                                color: AppColors.tertiary,
+                                size: 14,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'Level ${userProfile.level} • ${userProfile.levelTitle}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -439,6 +447,7 @@ class ProgressScreen extends ConsumerWidget {
                           ),
                         ),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             const Text(
                               'Score ',
@@ -478,15 +487,19 @@ class ProgressScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   // Evolution Bar
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Current Evolution',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.darkOnSurfaceVariant,
+                      const Expanded(
+                        child: Text(
+                          'Current Evolution',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.darkOnSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         '${userProfile.pointsToNextLevel} points to Level ${userProfile.level + 1}',
                         style: const TextStyle(
@@ -651,27 +664,32 @@ class ProgressScreen extends ConsumerWidget {
 
             // Quiet Milestones Badges Section
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Quiet Milestones',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkOnSurface,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Quiet Milestones',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkOnSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      'Proof of self-trust built over time',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.darkOutline,
+                      Text(
+                        'Proof of self-trust built over time',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.darkOutline,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 TextButton(
                   onPressed: () => _showAllBadgesDialog(context, ref),
@@ -802,38 +820,41 @@ class ProgressScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkOnSurface,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppColors.darkOutline,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkOnSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.darkOutline,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
           Text(
             value,
             style: const TextStyle(
@@ -849,7 +870,7 @@ class ProgressScreen extends ConsumerWidget {
 
   Widget _buildMiniStat(String label, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
         color: AppColors.darkSurfaceContainer.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(10),
@@ -862,6 +883,8 @@ class ProgressScreen extends ConsumerWidget {
           Text(
             label,
             style: const TextStyle(fontSize: 11, color: AppColors.darkOutline),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
           Text(
@@ -871,6 +894,9 @@ class ProgressScreen extends ConsumerWidget {
               fontWeight: FontWeight.bold,
               color: color,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
