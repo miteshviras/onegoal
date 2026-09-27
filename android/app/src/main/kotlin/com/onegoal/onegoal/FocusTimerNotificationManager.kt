@@ -92,6 +92,7 @@ class FocusTimerNotificationManager(private val context: Context) {
         FocusTimerStateHolder.isRunning = true
         FocusTimerStateHolder.isCompleted = false
         FocusTimerStateHolder.targetEndTimeMillis = targetEndTime
+        FocusTimerStateHolder.saveToPreferences(context)
 
         val pauseIntent = PendingIntent.getBroadcast(
             context,
@@ -154,6 +155,7 @@ class FocusTimerNotificationManager(private val context: Context) {
         FocusTimerStateHolder.remainingSeconds = remainingSeconds
         FocusTimerStateHolder.isRunning = false
         FocusTimerStateHolder.isCompleted = false
+        FocusTimerStateHolder.saveToPreferences(context)
 
         val resumeIntent = PendingIntent.getBroadcast(
             context,
@@ -248,6 +250,8 @@ class FocusTimerNotificationManager(private val context: Context) {
     fun showCompleted(taskTitle: String) {
         FocusTimerStateHolder.isRunning = false
         FocusTimerStateHolder.isCompleted = true
+        FocusTimerStateHolder.remainingSeconds = 0
+        FocusTimerStateHolder.saveToPreferences(context)
 
         val contentIntent = PendingIntent.getActivity(
             context,

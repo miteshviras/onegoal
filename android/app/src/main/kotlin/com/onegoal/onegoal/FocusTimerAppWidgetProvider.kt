@@ -6,6 +6,9 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.SystemClock
+import android.view.View
 import android.widget.RemoteViews
 
 class FocusTimerAppWidgetProvider : AppWidgetProvider() {
@@ -15,6 +18,7 @@ class FocusTimerAppWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        FocusTimerStateHolder.loadFromPreferences(context)
         for (appWidgetId in appWidgetIds) {
             updateWidgetView(context, appWidgetManager, appWidgetId)
         }
@@ -22,6 +26,7 @@ class FocusTimerAppWidgetProvider : AppWidgetProvider() {
 
     companion object {
         fun updateAllWidgets(context: Context) {
+            FocusTimerStateHolder.loadFromPreferences(context)
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val thisWidget = ComponentName(context, FocusTimerAppWidgetProvider::class.java)
             val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
@@ -40,30 +45,54 @@ class FocusTimerAppWidgetProvider : AppWidgetProvider() {
             // 1. Text & Titles
             views.setTextViewText(R.id.widget_task_title, FocusTimerStateHolder.taskTitle)
             views.setTextViewText(R.id.widget_task_subtitle, FocusTimerStateHolder.subtitle)
-            views.setTextViewText(
-                R.id.widget_timer_text,
-                "⏱ ${FocusTimerStateHolder.formattedTime}"
-            )
 
-            // 2. Dynamic button and status
-            if (FocusTimerStateHolder.isRunning) {
+            val effRemaining = FocusTimerStateHolder.getEffectiveRemainingSeconds()
+            val isActuallyRunning = FocusTimerStateHolder.isRunning && effRemaining > 0
+
+            // 2. Dynamic Live Countdown Chronometer & Status
+            if (isActuallyRunning) {
+                views.setViewVisibility(R.id.widget_chronometer, View.VISIBLE)
+                views.setViewVisibility(R.id.widget_timer_text, View.GONE)
+
+                val baseTime = SystemClock.elapsedRealtime() + (effRemaining * 1000L)
+                views.setChronometer(R.id.widget_chronometer, baseTime, "⏱ %s", true)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    views.setChronometerCountDown(R.id.widget_chronometer, true)
+                }
+
                 views.setTextViewText(R.id.widget_badge, "In Focus")
-                views.setTextViewText(
-                    R.id.widget_btn_text,
-                    "Pause Focus (${FocusTimerStateHolder.formattedTime})"
-                )
+                views.setTextViewText(R.id.widget_btn_text, "Pause Focus")
                 views.setImageViewResource(R.id.widget_btn_icon, R.drawable.ic_btn_pause)
-            } else if (FocusTimerStateHolder.remainingSeconds < FocusTimerStateHolder.totalSeconds && FocusTimerStateHolder.remainingSeconds > 0) {
-                views.setTextViewText(R.id.widget_badge, "Paused")
-                views.setTextViewText(R.id.widget_btn_text, "Resume Focus")
-                views.setImageViewResource(R.id.widget_btn_icon, R.drawable.ic_btn_play)
             } else {
-                views.setTextViewText(R.id.widget_badge, "Ready")
+                views.setViewVisibility(R.id.widget_chronometer, View.GONE)
+                views.setViewVisibility(R.id.widget_timer_text, View.VISIBLE)
                 views.setTextViewText(
-                    R.id.widget_btn_text,
-                    "Begin ${FocusTimerStateHolder.durationMinutes}-Min Focus"
+                    R.id.widget_timer_text,
+                    "⏱ ${FocusTimerStateHolder.formattedTime}"
                 )
-                views.setImageViewResource(R.id.widget_btn_icon, R.drawable.ic_btn_play)
+
+                if (FocusTimerStateHolder.remainingSeconds < FocusTimerStateHolder.totalSeconds && FocusTimerStateHolder.remainingSeconds > 0) {
+                    views.setTextViewText(R.id.widget_badge, "Paused")
+                    views.setTextViewText(
+                        R.id.widget_btn_text,
+                        "Resume Focus (${FocusTimerStateHolder.formattedTime})"
+                    )
+                    views.setImageViewResource(R.id.widget_btn_icon, R.drawable.ic_btn_play)
+                } else if (FocusTimerStateHolder.isCompleted || effRemaining <= 0 && FocusTimerStateHolder.targetEndTimeMillis > 0) {
+                    views.setTextViewText(R.id.widget_badge, "Completed")
+                    views.setTextViewText(
+                        R.id.widget_btn_text,
+                        "Restart ${FocusTimerStateHolder.durationMinutes}-Min Focus"
+                    )
+                    views.setImageViewResource(R.id.widget_btn_icon, R.drawable.ic_btn_play)
+                } else {
+                    views.setTextViewText(R.id.widget_badge, "Ready")
+                    views.setTextViewText(
+                        R.id.widget_btn_text,
+                        "Begin ${FocusTimerStateHolder.durationMinutes}-Min Focus"
+                    )
+                    views.setImageViewResource(R.id.widget_btn_icon, R.drawable.ic_btn_play)
+                }
             }
 
             // 3. Action Pending Intents

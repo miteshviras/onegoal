@@ -136,4 +136,15 @@ class LockscreenTimerService {
       await _channel.invokeMethod('syncDailyTasks', {'tasks': taskMaps});
     } catch (_) {}
   }
+
+  Future<Map<String, dynamic>?> getTimerState() async {
+    if (!Platform.isAndroid) return null;
+    try {
+      final res =
+          await _channel.invokeMapMethod<String, dynamic>('getTimerState');
+      return res;
+    } catch (_) {
+      return null;
+    }
+  }
 }

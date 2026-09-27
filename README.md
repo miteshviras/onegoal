@@ -89,6 +89,7 @@ Get the latest pre-built APK directly from GitHub Releases:
 
 - **🎯 Today's Mission**: Center each day on a single high-impact initiative, broken down into manageable micro-steps.
 - **⏱️ In-Focus Session**: Tactile focus timer (25m, 45m, 60m sprints) with live pause, resume, and haptic feedback.
+- **📱 Live Android Home & Lock Screen Widget**: Native Android AppWidget with real-time countdown (`Chronometer`), single-tap pause/resume/finish controls, and seamless background-to-foreground state synchronization.
 - **🧭 Active Horizons (3 Slots)**: Strict 3-goal limit that ensures deep focus on what truly matters this quarter.
 - **📅 Mindful Timeline**: Mini-week rhythm ribbon, live time indicator, and coach buffer recommendations between sprints.
 - **⭕ Concentric Progress Rings**: Triple concentric rings tracking Daily Missions, Habit Consistency, and Deep Work hours with a holistic Harmony score.

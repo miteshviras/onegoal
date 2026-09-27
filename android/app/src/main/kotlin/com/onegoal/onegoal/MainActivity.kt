@@ -63,6 +63,8 @@ class MainActivity : FlutterActivity() {
 
                     FocusTimerStateHolder.totalSeconds = totalSeconds
                     mgr.showRunning(taskTitle, subtitle, remainingSeconds)
+                    FocusTimerStateHolder.saveToPreferences(this)
+                    FocusTimerAppWidgetProvider.updateAllWidgets(this)
                     result.success(true)
                 }
 
@@ -72,6 +74,8 @@ class MainActivity : FlutterActivity() {
                     val remainingSeconds = call.argument<Int>("remainingSeconds") ?: FocusTimerStateHolder.remainingSeconds
 
                     mgr.showPaused(taskTitle, subtitle, remainingSeconds)
+                    FocusTimerStateHolder.saveToPreferences(this)
+                    FocusTimerAppWidgetProvider.updateAllWidgets(this)
                     result.success(true)
                 }
 
@@ -81,11 +85,18 @@ class MainActivity : FlutterActivity() {
                     val remainingSeconds = call.argument<Int>("remainingSeconds") ?: FocusTimerStateHolder.remainingSeconds
 
                     mgr.showRunning(taskTitle, subtitle, remainingSeconds)
+                    FocusTimerStateHolder.saveToPreferences(this)
+                    FocusTimerAppWidgetProvider.updateAllWidgets(this)
                     result.success(true)
                 }
 
                 "stopTimer" -> {
                     mgr.cancel()
+                    FocusTimerStateHolder.isRunning = false
+                    FocusTimerStateHolder.remainingSeconds = FocusTimerStateHolder.totalSeconds
+                    FocusTimerStateHolder.targetEndTimeMillis = 0L
+                    FocusTimerStateHolder.saveToPreferences(this)
+                    FocusTimerAppWidgetProvider.updateAllWidgets(this)
                     result.success(true)
                 }
 
@@ -99,8 +110,25 @@ class MainActivity : FlutterActivity() {
                     FocusTimerStateHolder.durationMinutes = durationMinutes
                     FocusTimerStateHolder.totalSeconds = durationMinutes * 60
                     FocusTimerStateHolder.remainingSeconds = durationMinutes * 60
+                    FocusTimerStateHolder.saveToPreferences(this)
                     FocusTimerAppWidgetProvider.updateAllWidgets(this)
                     result.success(true)
+                }
+
+                "getTimerState" -> {
+                    FocusTimerStateHolder.loadFromPreferences(this)
+                    val eff = FocusTimerStateHolder.getEffectiveRemainingSeconds()
+                    val map = mapOf(
+                        "taskTitle" to FocusTimerStateHolder.taskTitle,
+                        "subtitle" to FocusTimerStateHolder.subtitle,
+                        "durationMinutes" to FocusTimerStateHolder.durationMinutes,
+                        "totalSeconds" to FocusTimerStateHolder.totalSeconds,
+                        "remainingSeconds" to eff,
+                        "isRunning" to (FocusTimerStateHolder.isRunning && eff > 0),
+                        "isCompleted" to FocusTimerStateHolder.isCompleted,
+                        "targetEndTimeMillis" to FocusTimerStateHolder.targetEndTimeMillis
+                    )
+                    result.success(map)
                 }
 
                 "syncDailyTasks" -> {

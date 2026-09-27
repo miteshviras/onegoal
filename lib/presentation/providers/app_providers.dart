@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -327,17 +328,25 @@ class FocusTimerState {
   }
 }
 
-class FocusTimerNotifier extends Notifier<FocusTimerState> {
+class FocusTimerNotifier extends Notifier<FocusTimerState>
+    with WidgetsBindingObserver {
   Timer? _timer;
   LockscreenActionCallback? _lockscreenCallback;
+  DateTime? _targetEndTime;
 
   @override
   FocusTimerState build() {
+    WidgetsBinding.instance.addObserver(this);
+
     _lockscreenCallback = (action) {
-      if (action == 'pause') {
-        pause();
-      } else if (action == 'resume') {
-        startOrResume();
+      if (action.startsWith('pause')) {
+        final parts = action.split(':');
+        final rem = parts.length > 1 ? int.tryParse(parts[1]) : null;
+        pause(remaining: rem);
+      } else if (action.startsWith('resume')) {
+        final parts = action.split(':');
+        final rem = parts.length > 1 ? int.tryParse(parts[1]) : null;
+        startOrResume(remaining: rem);
       } else if (action == 'complete') {
         pause();
         final currentInFocus = ref.read(tasksNotifierProvider).inFocusTask;
@@ -350,8 +359,10 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
     };
 
     LockscreenTimerService().addListener(_lockscreenCallback!);
+    Future.microtask(syncFromNative);
 
     ref.onDispose(() {
+      WidgetsBinding.instance.removeObserver(this);
       _timer?.cancel();
       if (_lockscreenCallback != null) {
         LockscreenTimerService().removeListener(_lockscreenCallback!);
@@ -360,8 +371,106 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
     return FocusTimerState();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      syncFromNative();
+    }
+  }
+
+  Future<void> syncFromNative() async {
+    final nativeState = await LockscreenTimerService().getTimerState();
+    if (nativeState != null) {
+      final isRunning = nativeState['isRunning'] as bool? ?? false;
+      final remaining =
+          nativeState['remainingSeconds'] as int? ?? state.remainingSeconds;
+      final total =
+          nativeState['totalSeconds'] as int? ?? state.totalSeconds;
+      final title =
+          nativeState['taskTitle'] as String? ?? state.taskTitle;
+      final subtitle =
+          nativeState['subtitle'] as String? ?? state.subtitle;
+      final isCompleted =
+          nativeState['isCompleted'] as bool? ?? false;
+      final targetEndMillis =
+          nativeState['targetEndTimeMillis'] as int? ?? 0;
+
+      if (isRunning && targetEndMillis > 0) {
+        _targetEndTime =
+            DateTime.fromMillisecondsSinceEpoch(targetEndMillis);
+        final currentRemaining =
+            _targetEndTime!.difference(DateTime.now()).inSeconds;
+        if (currentRemaining <= 0) {
+          _timer?.cancel();
+          _targetEndTime = null;
+          state = state.copyWith(
+            remainingSeconds: 0,
+            status: TimerStatus.completed,
+            taskTitle: title,
+            subtitle: subtitle,
+          );
+        } else {
+          state = state.copyWith(
+            remainingSeconds: currentRemaining,
+            totalSeconds: total,
+            status: TimerStatus.running,
+            taskTitle: title,
+            subtitle: subtitle,
+          );
+          _startTicking();
+        }
+      } else if (isCompleted) {
+        _timer?.cancel();
+        _targetEndTime = null;
+        state = state.copyWith(
+          remainingSeconds: 0,
+          status: TimerStatus.completed,
+          taskTitle: title,
+          subtitle: subtitle,
+        );
+      } else if (remaining < total && remaining > 0) {
+        _timer?.cancel();
+        _targetEndTime = null;
+        state = state.copyWith(
+          remainingSeconds: remaining,
+          totalSeconds: total,
+          status: TimerStatus.paused,
+          taskTitle: title,
+          subtitle: subtitle,
+        );
+      }
+    }
+  }
+
+  void _startTicking() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_targetEndTime != null) {
+        final remaining = _targetEndTime!.difference(DateTime.now()).inSeconds;
+        if (remaining > 0) {
+          state = state.copyWith(remainingSeconds: remaining);
+        } else {
+          _timer?.cancel();
+          _targetEndTime = null;
+          state = state.copyWith(
+            remainingSeconds: 0,
+            status: TimerStatus.completed,
+          );
+          LockscreenTimerService().stopTimer();
+        }
+      } else if (state.remainingSeconds > 0) {
+        state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
+      } else {
+        _timer?.cancel();
+        state = state.copyWith(status: TimerStatus.completed);
+        LockscreenTimerService().stopTimer();
+      }
+    });
+  }
+
   void setTaskAndDuration(String title, int minutes, {String subtitle = ''}) {
     _timer?.cancel();
+    _targetEndTime = null;
     state = FocusTimerState(
       totalSeconds: minutes * 60,
       remainingSeconds: minutes * 60,
@@ -380,41 +489,50 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
     setTaskAndDuration(state.taskTitle, minutes, subtitle: state.subtitle);
   }
 
-  void startOrResume() {
-    if (state.status == TimerStatus.running) return;
+  void startOrResume({int? remaining}) {
+    final rem = remaining ?? state.remainingSeconds;
+    if (rem <= 0) return;
 
-    state = state.copyWith(status: TimerStatus.running);
+    _targetEndTime = DateTime.now().add(Duration(seconds: rem));
+    state = state.copyWith(
+      status: TimerStatus.running,
+      remainingSeconds: rem,
+    );
+
     LockscreenTimerService().startTimer(
       taskTitle: state.taskTitle,
       subtitle: state.subtitle,
-      remainingSeconds: state.remainingSeconds,
+      remainingSeconds: rem,
       totalSeconds: state.totalSeconds,
     );
 
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.remainingSeconds > 0) {
-        state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
-      } else {
-        _timer?.cancel();
-        state = state.copyWith(status: TimerStatus.completed);
-        LockscreenTimerService().stopTimer();
-      }
-    });
+    _startTicking();
   }
 
-  void pause() {
+  void pause({int? remaining}) {
     _timer?.cancel();
-    state = state.copyWith(status: TimerStatus.paused);
+    final rem = remaining ??
+        (_targetEndTime != null
+            ? _targetEndTime!
+                .difference(DateTime.now())
+                .inSeconds
+                .clamp(0, state.totalSeconds)
+            : state.remainingSeconds);
+    _targetEndTime = null;
+    state = state.copyWith(
+      status: TimerStatus.paused,
+      remainingSeconds: rem,
+    );
     LockscreenTimerService().pauseTimer(
       taskTitle: state.taskTitle,
       subtitle: state.subtitle,
-      remainingSeconds: state.remainingSeconds,
+      remainingSeconds: rem,
     );
   }
 
   void reset() {
     _timer?.cancel();
+    _targetEndTime = null;
     state = state.copyWith(
       remainingSeconds: state.totalSeconds,
       status: TimerStatus.initial,

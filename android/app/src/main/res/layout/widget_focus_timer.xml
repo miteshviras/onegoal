@@ -44,7 +44,19 @@
                 android:textSize="11sp"
                 android:textStyle="bold" />
 
-            <!-- Remaining Time Display -->
+            <!-- Live Chronometer for active focus countdown -->
+            <Chronometer
+                android:id="@+id/widget_chronometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:textColor="#60A5FA"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <!-- Remaining Time Display when paused or stopped -->
             <TextView
                 android:id="@+id/widget_timer_text"
                 android:layout_width="wrap_content"
