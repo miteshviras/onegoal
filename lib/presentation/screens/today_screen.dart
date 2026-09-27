@@ -12,6 +12,7 @@ import '../providers/app_providers.dart';
 import '../widgets/focus_glyph.dart';
 import '../widgets/new_goal_dialog.dart';
 import '../widgets/new_task_dialog.dart';
+import '../widgets/user_avatar.dart';
 
 class TodayScreen extends ConsumerWidget {
   final VoidCallback onOpenProfile;
@@ -131,35 +132,13 @@ class TodayScreen extends ConsumerWidget {
                   ),
                   GestureDetector(
                     onTap: onOpenProfile,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.darkOutlineVariant.withValues(
-                            alpha: 0.6,
-                          ),
+                    child: UserAvatar(
+                      avatarUrl: userProfile.avatarUrl,
+                      size: 36,
+                      border: Border.all(
+                        color: AppColors.darkOutlineVariant.withValues(
+                          alpha: 0.6,
                         ),
-                      ),
-                      child: ClipOval(
-                        child: userProfile.avatarUrl.startsWith('assets/')
-                            ? Image.asset(
-                                userProfile.avatarUrl,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.network(
-                                userProfile.avatarUrl.isNotEmpty
-                                    ? userProfile.avatarUrl
-                                    : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(
-                                      Icons.person,
-                                      color: AppColors.darkOnSurface,
-                                      size: 20,
-                                    ),
-                              ),
                       ),
                     ),
                   ),

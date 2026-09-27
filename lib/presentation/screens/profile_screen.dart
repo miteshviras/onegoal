@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 import '../widgets/edit_profile_dialog.dart';
+import '../widgets/user_avatar.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -185,38 +186,13 @@ class ProfileScreen extends ConsumerWidget {
                     onTap: () => EditProfileSheet.show(context, profile),
                     child: Stack(
                       children: [
-                        Container(
-                          width: 90,
-                          height: 90,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: AppColors.darkSurfaceContainer,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.darkOutlineVariant.withValues(
-                                alpha: 0.4,
-                              ),
+                        UserAvatar(
+                          avatarUrl: profile.avatarUrl,
+                          size: 90,
+                          border: Border.all(
+                            color: AppColors.darkOutlineVariant.withValues(
+                              alpha: 0.4,
                             ),
-                          ),
-                          child: ClipOval(
-                            child: profile.avatarUrl.startsWith('assets/')
-                                ? Image.asset(
-                                    profile.avatarUrl,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.network(
-                                    profile.avatarUrl.isNotEmpty
-                                        ? profile.avatarUrl
-                                        : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(
-                                              Icons.person,
-                                              color: AppColors.primary,
-                                              size: 44,
-                                            ),
-                                  ),
                           ),
                         ),
                         Positioned(

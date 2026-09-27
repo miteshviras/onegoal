@@ -1,11 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../data/models/user_profile.dart';
 import '../providers/app_providers.dart';
+import 'user_avatar.dart';
 
 class EditProfileSheet extends ConsumerStatefulWidget {
   final UserProfile profile;
@@ -29,13 +33,11 @@ class EditProfileSheet extends ConsumerStatefulWidget {
 class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
   late final TextEditingController _nameController;
   late final TextEditingController _titleController;
-  late final TextEditingController _customAvatarController;
 
   late String _selectedAvatar;
   late String _coachingTone;
   late String _eveningTime;
   late int _focusDuration;
-  bool _showCustomUrlField = false;
 
   final List<Map<String, String>> _avatarPresets = [
     {'label': 'Orbit', 'url': 'assets/images/app_logo.png', 'isAsset': 'true'},
@@ -81,27 +83,163 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
     _selectedAvatar = widget.profile.avatarUrl.isNotEmpty
         ? widget.profile.avatarUrl
         : 'assets/images/app_logo.png';
-    _customAvatarController = TextEditingController(
-      text: _selectedAvatar.startsWith('http') ? _selectedAvatar : '',
-    );
     _coachingTone = widget.profile.coachingTone;
     _eveningTime = widget.profile.eveningRitualTime;
     _focusDuration = widget.profile.focusTimerMinutes;
-
-    final isPreset = _avatarPresets.any(
-      (preset) => preset['url'] == _selectedAvatar,
-    );
-    if (!isPreset && _selectedAvatar.isNotEmpty) {
-      _showCustomUrlField = true;
-    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _titleController.dispose();
-    _customAvatarController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 85,
+      );
+      if (pickedFile == null) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final extension = pickedFile.path.split('.').last;
+      final fileName =
+          'user_avatar_${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final savedFile =
+          await File(pickedFile.path).copy('${appDir.path}/$fileName');
+
+      if (!mounted) return;
+      setState(() {
+        _selectedAvatar = savedFile.path;
+      });
+      HapticFeedback.selectionClick();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not load photo: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurfaceContainer,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.darkOutlineVariant.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Choose Profile Photo',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkOnSurface,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryContainer.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.photo_library, color: AppColors.primary),
+                ),
+                title: const Text(
+                  'Choose from Gallery',
+                  style: TextStyle(
+                    color: AppColors.darkOnSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Select a photo from local storage',
+                  style: TextStyle(color: AppColors.darkOutline, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.successEmerald.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.photo_camera, color: AppColors.successEmerald),
+                ),
+                title: const Text(
+                  'Take Photo',
+                  style: TextStyle(
+                    color: AppColors.darkOnSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Capture a new photo with camera',
+                  style: TextStyle(color: AppColors.darkOutline, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              if (!_avatarPresets.any((p) => p['url'] == _selectedAvatar) &&
+                  _selectedAvatar.isNotEmpty)
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.restart_alt, color: AppColors.error),
+                  ),
+                  title: const Text(
+                    'Reset to Default Avatar',
+                    style: TextStyle(
+                      color: AppColors.error,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _selectedAvatar = 'assets/images/app_logo.png';
+                    });
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   String _formatTimeOfDay(TimeOfDay tod) {
@@ -149,10 +287,6 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
     }
 
     final title = _titleController.text.trim();
-    final customUrl = _customAvatarController.text.trim();
-    final finalAvatar = (_showCustomUrlField && customUrl.isNotEmpty)
-        ? customUrl
-        : _selectedAvatar;
 
     HapticFeedback.mediumImpact();
     await ref
@@ -160,7 +294,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
         .updateProfile(
           name: name,
           title: title.isNotEmpty ? title : 'Intentional Builder',
-          avatarUrl: finalAvatar,
+          avatarUrl: _selectedAvatar,
           coachingTone: _coachingTone,
           eveningRitualTime: _eveningTime,
           focusTimerMinutes: _focusDuration,
@@ -243,14 +377,13 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                 children: [
                   // 1. Live Avatar Preview & Camera Edit Action
                   Center(
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 88,
-                          height: 88,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
+                    child: GestureDetector(
+                      onTap: _showImageSourceDialog,
+                      child: Stack(
+                        children: [
+                          UserAvatar(
+                            avatarUrl: _selectedAvatar,
+                            size: 88,
                             border: Border.all(
                               color: AppColors.primary.withValues(alpha: 0.5),
                               width: 2,
@@ -265,49 +398,29 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                               ),
                             ],
                           ),
-                          child: ClipOval(
-                            child: _selectedAvatar.startsWith('assets/')
-                                ? Image.asset(
-                                    _selectedAvatar,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.network(
-                                    _selectedAvatar.isNotEmpty
-                                        ? _selectedAvatar
-                                        : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(
-                                              Icons.person,
-                                              color: AppColors.primary,
-                                              size: 44,
-                                            ),
-                                  ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.darkBackground,
+                                  width: 2,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                size: 14,
                                 color: AppColors.darkBackground,
-                                width: 2,
                               ),
                             ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              size: 14,
-                              color: Colors.white,
-                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -332,18 +445,13 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                           const SizedBox(width: 12),
                       itemBuilder: (context, index) {
                         if (index == _avatarPresets.length) {
-                          // Custom photo URL option
-                          final isCustomSelected = _showCustomUrlField;
+                          // Custom photo (Gallery / Camera) option
+                          final isCustomSelected = !_avatarPresets
+                              .any((p) => p['url'] == _selectedAvatar);
                           return GestureDetector(
                             onTap: () {
                               HapticFeedback.selectionClick();
-                              setState(() {
-                                _showCustomUrlField = true;
-                                if (_customAvatarController.text.isNotEmpty) {
-                                  _selectedAvatar = _customAvatarController.text
-                                      .trim();
-                                }
-                              });
+                              _showImageSourceDialog();
                             },
                             child: Column(
                               children: [
@@ -359,9 +467,19 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                                           : AppColors.darkOutlineVariant,
                                       width: isCustomSelected ? 2.5 : 1.2,
                                     ),
+                                    boxShadow: isCustomSelected
+                                        ? [
+                                            BoxShadow(
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.4),
+                                              blurRadius: 10,
+                                              spreadRadius: 1,
+                                            ),
+                                          ]
+                                        : null,
                                   ),
                                   child: Icon(
-                                    Icons.link,
+                                    Icons.add_a_photo_outlined,
                                     color: isCustomSelected
                                         ? AppColors.primary
                                         : AppColors.darkOutline,
@@ -387,16 +505,13 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                         }
 
                         final preset = _avatarPresets[index];
-                        final isSelected =
-                            !_showCustomUrlField &&
-                            _selectedAvatar == preset['url'];
+                        final isSelected = _selectedAvatar == preset['url'];
                         final isAsset = preset['isAsset'] == 'true';
 
                         return GestureDetector(
                           onTap: () {
                             HapticFeedback.selectionClick();
                             setState(() {
-                              _showCustomUrlField = false;
                               _selectedAvatar = preset['url']!;
                             });
                           },
@@ -418,9 +533,8 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: AppColors.primary.withValues(
-                                              alpha: 0.4,
-                                            ),
+                                            color: AppColors.primary
+                                                .withValues(alpha: 0.4),
                                             blurRadius: 10,
                                             spreadRadius: 1,
                                           ),
@@ -465,61 +579,121 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                     ),
                   ),
 
-                  // Custom URL input field
-                  if (_showCustomUrlField) ...[
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _customAvatarController,
-                      style: GoogleFonts.manrope(
-                        color: AppColors.darkOnSurface,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: 'Custom Photo URL',
-                        labelStyle: const TextStyle(
-                          color: AppColors.darkOutline,
-                        ),
-                        hintText: 'https://example.com/avatar.jpg',
-                        hintStyle: TextStyle(
-                          color: AppColors.darkOutline.withValues(alpha: 0.6),
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.image_outlined,
-                          color: AppColors.darkOutline,
-                        ),
-                        suffixIcon: IconButton(
+                  // Quick Action Buttons: Gallery & Camera
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _pickImage(ImageSource.gallery),
                           icon: const Icon(
-                            Icons.check,
-                            color: AppColors.primary,
+                            Icons.photo_library_outlined,
+                            size: 18,
                           ),
-                          onPressed: () {
-                            if (_customAvatarController.text
-                                .trim()
-                                .isNotEmpty) {
-                              setState(() {
-                                _selectedAvatar = _customAvatarController.text
-                                    .trim();
-                              });
-                            }
-                          },
-                        ),
-                        filled: true,
-                        fillColor: AppColors.darkSurfaceContainerLow,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: AppColors.darkOutlineVariant.withValues(
-                              alpha: 0.4,
+                          label: Text(
+                            'Gallery',
+                            style: GoogleFonts.manrope(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.darkOnSurface,
+                            backgroundColor: AppColors.darkSurfaceContainerLow,
+                            side: BorderSide(
+                              color: AppColors.darkOutlineVariant
+                                  .withValues(alpha: 0.4),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),
                       ),
-                      onChanged: (val) {
-                        if (val.trim().isNotEmpty) {
-                          setState(() {
-                            _selectedAvatar = val.trim();
-                          });
-                        }
-                      },
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _pickImage(ImageSource.camera),
+                          icon: const Icon(
+                            Icons.photo_camera_outlined,
+                            size: 18,
+                          ),
+                          label: Text(
+                            'Camera',
+                            style: GoogleFonts.manrope(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.darkOnSurface,
+                            backgroundColor: AppColors.darkSurfaceContainerLow,
+                            side: BorderSide(
+                              color: AppColors.darkOutlineVariant
+                                  .withValues(alpha: 0.4),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (!_avatarPresets.any((p) => p['url'] == _selectedAvatar) &&
+                      _selectedAvatar.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            AppColors.primaryContainer.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.check_circle_outline,
+                            color: AppColors.primary,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Custom photo selected from device',
+                              style: GoogleFonts.manrope(
+                                fontSize: 12,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedAvatar = 'assets/images/app_logo.png';
+                              });
+                            },
+                            child: Text(
+                              'Reset',
+                              style: GoogleFonts.manrope(
+                                fontSize: 12,
+                                color: AppColors.darkOutline,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                   const SizedBox(height: 20),

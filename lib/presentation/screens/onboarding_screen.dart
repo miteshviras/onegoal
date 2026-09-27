@@ -1,12 +1,17 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../data/models/goal.dart';
 import '../../data/models/task_item.dart';
 import '../providers/app_providers.dart';
+import '../widgets/user_avatar.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -83,6 +88,159 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     'Creative',
     'Life Ops',
   ];
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 85,
+      );
+      if (pickedFile == null) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final extension = pickedFile.path.split('.').last;
+      final fileName =
+          'user_avatar_${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final savedFile =
+          await File(pickedFile.path).copy('${appDir.path}/$fileName');
+
+      if (!mounted) return;
+      setState(() {
+        _selectedAvatar = savedFile.path;
+      });
+      HapticFeedback.selectionClick();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not load photo: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurfaceContainer,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.darkOutlineVariant.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Choose Profile Photo',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkOnSurface,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryContainer.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.photo_library,
+                    color: AppColors.primary,
+                  ),
+                ),
+                title: const Text(
+                  'Choose from Gallery',
+                  style: TextStyle(
+                    color: AppColors.darkOnSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Select a photo from local storage',
+                  style: TextStyle(color: AppColors.darkOutline, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.successEmerald.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.photo_camera,
+                    color: AppColors.successEmerald,
+                  ),
+                ),
+                title: const Text(
+                  'Take Photo',
+                  style: TextStyle(
+                    color: AppColors.darkOnSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Capture a new photo with camera',
+                  style: TextStyle(color: AppColors.darkOutline, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              if (!_avatarPresets.any((p) => p['url'] == _selectedAvatar) &&
+                  _selectedAvatar.isNotEmpty)
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.restart_alt, color: AppColors.error),
+                  ),
+                  title: const Text(
+                    'Reset to Default Avatar',
+                    style: TextStyle(
+                      color: AppColors.error,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _selectedAvatar = 'assets/images/app_logo.png';
+                    });
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -513,39 +671,146 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 12),
+          Center(
+            child: GestureDetector(
+              onTap: _showImageSourceDialog,
+              child: Stack(
+                children: [
+                  UserAvatar(
+                    avatarUrl: _selectedAvatar,
+                    size: 80,
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.5),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.25),
+                        blurRadius: 14,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.fidelityDarkBackground,
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        size: 13,
+                        color: AppColors.darkBackground,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
           SizedBox(
             height: 84,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: _avatarPresets.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 14),
+              itemCount: _avatarPresets.length + 1,
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
+                if (index == _avatarPresets.length) {
+                  final isCustomSelected = !_avatarPresets
+                      .any((p) => p['url'] == _selectedAvatar);
+                  return GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      _showImageSourceDialog();
+                    },
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.darkSurfaceContainerHigh,
+                            border: Border.all(
+                              color: isCustomSelected
+                                  ? AppColors.primary
+                                  : AppColors.darkOutlineVariant,
+                              width: isCustomSelected ? 2.5 : 1.2,
+                            ),
+                            boxShadow: isCustomSelected
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.primary
+                                          .withValues(alpha: 0.4),
+                                      blurRadius: 10,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Icon(
+                            Icons.add_a_photo_outlined,
+                            color: isCustomSelected
+                                ? AppColors.primary
+                                : AppColors.darkOutline,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Custom',
+                          style: GoogleFonts.manrope(
+                            fontSize: 11,
+                            fontWeight: isCustomSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isCustomSelected
+                                ? AppColors.primary
+                                : AppColors.darkOutline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
                 final preset = _avatarPresets[index];
                 final isSelected = _selectedAvatar == preset['url'];
                 final isAsset = preset['isAsset'] == 'true';
 
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedAvatar = preset['url']!),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => _selectedAvatar = preset['url']!);
+                  },
                   child: Column(
                     children: [
                       Container(
-                        width: 58,
-                        height: 58,
+                        width: 56,
+                        height: 56,
                         padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: isSelected
-                                ? AppColors.fidelityDarkAccent
-                                : AppColors.fidelityDarkBorder.withValues(
-                                    alpha: 0.5,
-                                  ),
+                                ? AppColors.primary
+                                : AppColors.darkOutlineVariant
+                                      .withValues(alpha: 0.5),
                             width: isSelected ? 2.5 : 1.2,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: AppColors.fidelityDarkAccent
+                                    color: AppColors.primary
                                         .withValues(alpha: 0.4),
                                     blurRadius: 10,
                                     spreadRadius: 1,
@@ -562,7 +827,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                   errorBuilder: (context, error, stackTrace) =>
                                       const Icon(
                                         Icons.person,
-                                        color: AppColors.fidelityDarkAccent,
+                                        color: AppColors.primary,
                                       ),
                                 ),
                         ),
@@ -576,8 +841,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               ? FontWeight.w700
                               : FontWeight.w500,
                           color: isSelected
-                              ? AppColors.fidelityDarkAccent
-                              : AppColors.fidelityDarkMutedText,
+                              ? AppColors.primary
+                              : AppColors.darkOutline,
                         ),
                       ),
                     ],
@@ -586,7 +851,116 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               },
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library_outlined, size: 18),
+                  label: Text(
+                    'Gallery',
+                    style: GoogleFonts.manrope(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.darkOnSurface,
+                    backgroundColor: AppColors.darkSurfaceContainerLow,
+                    side: BorderSide(
+                      color: AppColors.darkOutlineVariant
+                          .withValues(alpha: 0.4),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _pickImage(ImageSource.camera),
+                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                  label: Text(
+                    'Camera',
+                    style: GoogleFonts.manrope(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.darkOnSurface,
+                    backgroundColor: AppColors.darkSurfaceContainerLow,
+                    side: BorderSide(
+                      color: AppColors.darkOutlineVariant
+                          .withValues(alpha: 0.4),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (!_avatarPresets.any((p) => p['url'] == _selectedAvatar) &&
+              _selectedAvatar.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.primaryContainer.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline,
+                    color: AppColors.primary,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Custom photo selected from device',
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedAvatar = 'assets/images/app_logo.png';
+                      });
+                    },
+                    child: Text(
+                      'Reset',
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        color: AppColors.darkOutline,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 20),
 
           // 2. Name
           Text(
