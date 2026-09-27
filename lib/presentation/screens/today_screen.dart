@@ -175,63 +175,33 @@ class TodayScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. Warm Greeting
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          '$greeting, ${userProfile.name.split(' ').first}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.darkOnSurface,
-                            letterSpacing: -0.5,
-                          ),
+                    Flexible(
+                      child: Text(
+                        '$greeting, ${userProfile.name.split(' ').first}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.darkOnSurface,
+                          letterSpacing: -0.5,
                         ),
-                        const SizedBox(width: 6),
-                        const Text('✨', style: TextStyle(fontSize: 18)),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'You have a fresh, calm day ahead.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.darkOnSurfaceVariant,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 6),
+                    const Text('✨', style: TextStyle(fontSize: 18)),
                   ],
                 ),
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.darkOutlineVariant.withValues(
-                        alpha: 0.4,
-                      ),
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: userProfile.avatarUrl.startsWith('assets/')
-                        ? Image.asset(userProfile.avatarUrl, fit: BoxFit.cover)
-                        : Image.network(
-                            userProfile.avatarUrl.isNotEmpty
-                                ? userProfile.avatarUrl
-                                : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(
-                                  Icons.spa,
-                                  color: AppColors.primary,
-                                  size: 20,
-                                ),
-                          ),
+                const SizedBox(height: 2),
+                const Text(
+                  'You have a fresh, calm day ahead.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.darkOnSurfaceVariant,
                   ),
                 ),
               ],
