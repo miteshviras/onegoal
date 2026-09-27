@@ -44,4 +44,29 @@ class TaskRepository {
     tasks.add(task);
     await saveTasks(tasks);
   }
+
+  Future<void> deleteTask(String taskId) async {
+    final tasks = await getTasks();
+    tasks.removeWhere((t) => t.id == taskId);
+    // Recalculate step numbers and total steps
+    for (int i = 0; i < tasks.length; i++) {
+      tasks[i] = tasks[i].copyWith(
+        stepNumber: i + 1,
+        totalSteps: tasks.length,
+        order: i + 1,
+      );
+    }
+    await saveTasks(tasks);
+  }
+
+  Future<void> setFocusTask(String taskId) async {
+    final tasks = await getTasks();
+    for (int i = 0; i < tasks.length; i++) {
+      tasks[i] = tasks[i].copyWith(
+        isCurrentFocus: tasks[i].id == taskId,
+      );
+    }
+    await saveTasks(tasks);
+  }
 }
+

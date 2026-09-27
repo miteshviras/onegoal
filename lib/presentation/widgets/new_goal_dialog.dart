@@ -17,6 +17,7 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
   final _affirmationController = TextEditingController();
   String _category = 'Career & Craft';
   int _dueInDays = 30;
+  String? _titleError;
   final List<TextEditingController> _milestoneControllers = [
     TextEditingController(),
     TextEditingController(),
@@ -50,7 +51,12 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
 
   void _save() {
     final title = _titleController.text.trim();
-    if (title.isEmpty) return;
+    if (title.isEmpty) {
+      setState(() {
+        _titleError = 'Please enter a goal title';
+      });
+      return;
+    }
 
     final milestones = _milestoneControllers
         .map((c) => c.text.trim())
@@ -113,6 +119,12 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
             _buildTextField(
               controller: _titleController,
               hint: 'e.g. Master Design Systems in Flutter',
+              errorText: _titleError,
+              onChanged: (_) {
+                if (_titleError != null) {
+                  setState(() => _titleError = null);
+                }
+              },
             ),
             const SizedBox(height: 14),
             _buildLabel('Category'),
@@ -183,9 +195,28 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
             ..._milestoneControllers.asMap().entries.map((entry) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: _buildTextField(
-                  controller: entry.value,
-                  hint: 'Milestone ${entry.key + 1}',
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: entry.value,
+                        hint: 'Milestone ${entry.key + 1}',
+                      ),
+                    ),
+                    if (_milestoneControllers.length > 1) ...[
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle_outline,
+                            color: AppColors.darkOutline, size: 20),
+                        onPressed: () {
+                          setState(() {
+                            final c = _milestoneControllers.removeAt(entry.key);
+                            c.dispose();
+                          });
+                        },
+                      ),
+                    ],
+                  ],
                 ),
               );
             }),
@@ -231,26 +262,46 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
+    String? errorText,
+    ValueChanged<String>? onChanged,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.darkSurfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.darkSurfaceContainerLow,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: errorText != null
+                  ? Colors.redAccent
+                  : AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+            ),
+          ),
+          child: TextField(
+            controller: controller,
+            onChanged: onChanged,
+            style: const TextStyle(fontSize: 14, color: AppColors.darkOnSurface),
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              border: InputBorder.none,
+              hintText: hint,
+              hintStyle: const TextStyle(fontSize: 13, color: AppColors.darkOutline),
+            ),
+          ),
         ),
-      ),
-      child: TextField(
-        controller: controller,
-        style: const TextStyle(fontSize: 14, color: AppColors.darkOnSurface),
-        decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          border: InputBorder.none,
-          hintText: hint,
-          hintStyle: const TextStyle(fontSize: 13, color: AppColors.darkOutline),
-        ),
-      ),
+        if (errorText != null) ...[
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              errorText,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 11),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

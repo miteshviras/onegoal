@@ -1,0 +1,14 @@
+{
+  "name": "projects/16722238107092378204",
+  "projectId": "16722238107092378204",
+  "title": "Mindful Daily Goal Planner",
+  "visibility": "PRIVATE",
+  "projectType": "TEXT_TO_UI_PRO",
+  "screens": {
+    "today": "7c3c402c16df4c6cb524305cd83cbee4",
+    "timeline": "8794ade49fb342a0b12fa17164c280d6",
+    "goals": "becae056500f45e7ab0db20170bcd9ed",
+    "progress": "142b6c9e12364b1cbfcdb12e893bad6c",
+    "profile": "501c28157c2f40f99b5b069290f24d8a"
+  }
+}

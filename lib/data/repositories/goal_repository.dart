@@ -52,4 +52,11 @@ class GoalRepository {
     }).toList();
     await saveGoals(updated);
   }
+
+  Future<void> deleteGoal(String goalId) async {
+    final current = await getGoals();
+    current.removeWhere((g) => g.id == goalId);
+    await saveGoals(current);
+  }
 }
+

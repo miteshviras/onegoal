@@ -193,6 +193,33 @@ class GoalBreakdownSheet extends ConsumerWidget {
                               fontSize: 11,
                               color: AppColors.darkOutline,
                             ),
+                          )
+                        else
+                          IconButton(
+                            icon: const Icon(
+                              Icons.add_task,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                            tooltip: "Schedule in Today's Flow",
+                            onPressed: () {
+                              HapticFeedback.mediumImpact();
+                              ref.read(tasksNotifierProvider.notifier).addTask(
+                                    title: milestone.title,
+                                    subtitle:
+                                        'Milestone • ${currentGoal.title}',
+                                    scheduledTime: 'Today',
+                                    durationMinutes: 25,
+                                    goalId: currentGoal.id,
+                                  );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      "Scheduled '${milestone.title}' in Today's Flow"),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
                           ),
                       ],
                     ),

@@ -148,14 +148,17 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text(
-                'What unblocked you today?',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.darkOnSurface,
+              Expanded(
+                child: Text(
+                  'What unblocked you today?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkOnSurface,
+                  ),
                 ),
               ),
+              SizedBox(width: 8),
               Text(
                 'Optional',
                 style: TextStyle(
@@ -197,11 +200,16 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Logged privately to your story',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.darkOutline,
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Text(
+                    'Logged privately to your story',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.darkOutline,
+                    ),
+                  ),
                 ),
               ),
               FilledButton(

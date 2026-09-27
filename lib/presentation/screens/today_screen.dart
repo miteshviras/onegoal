@@ -2,7 +2,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/models/task_item.dart';
+import '../../data/models/goal.dart';
 import '../providers/app_providers.dart';
 import '../widgets/focus_glyph.dart';
 import '../widgets/new_goal_dialog.dart';
@@ -26,6 +29,11 @@ class TodayScreen extends ConsumerWidget {
     final completedCount = tasksState.completedCount;
     final totalCount = tasksState.totalCount == 0 ? 5 : tasksState.totalCount;
     final progressFraction = completedCount / totalCount;
+
+    final now = DateTime.now();
+    final hour = now.hour;
+    final greeting = hour < 12 ? 'Good morning' : (hour < 17 ? 'Good afternoon' : 'Good evening');
+    final formattedDate = 'Today, ${DateFormat('MMM d').format(now)}';
 
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
@@ -106,9 +114,9 @@ class TodayScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          const Text(
-                            'Today, Oct 24',
-                            style: TextStyle(
+                          Text(
+                            formattedDate,
+                            style: const TextStyle(
                               color: AppColors.darkOutline,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -169,7 +177,7 @@ class TodayScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Text(
-                          'Good morning, ${userProfile.name.split(' ').first}',
+                          '$greeting, ${userProfile.name.split(' ').first}',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -223,7 +231,7 @@ class TodayScreen extends ConsumerWidget {
 
             // 2. Today's Mission Hero Card
             if (missionGoal == null)
-              _buildEmptyMissionCard(context)
+              _buildEmptyMissionCard(context, ref)
             else
               Container(
                 width: double.infinity,
@@ -634,8 +642,11 @@ class TodayScreen extends ConsumerWidget {
                                               ? 'Pause Focus (${timerState.formattedTime})'
                                               : (timerState.status ==
                                                       TimerStatus.paused
-                                                  ? 'Resume Focus'
-                                                  : 'Begin 25-Min Focus'),
+                                                  ? 'Resume Focus (${timerState.formattedTime})'
+                                                  : (timerState.status ==
+                                                          TimerStatus.completed
+                                                      ? 'Focus Complete 🎉 Restart'
+                                                      : 'Begin ${inFocusTask?.durationMinutes ?? (timerState.totalSeconds ~/ 60)}m Focus')),
                                           style: const TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
@@ -653,6 +664,40 @@ class TodayScreen extends ConsumerWidget {
                                       ),
                                     ),
                                   ),
+                                  if (timerState.status ==
+                                          TimerStatus.running ||
+                                      timerState.status ==
+                                          TimerStatus.paused) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color:
+                                            AppColors.darkSurfaceContainerHigh,
+                                        border: Border.all(
+                                          color: AppColors.darkOutlineVariant
+                                              .withValues(alpha: 0.4),
+                                        ),
+                                      ),
+                                      child: IconButton(
+                                        tooltip: 'Reset Timer',
+                                        icon: const Icon(
+                                          Icons.replay,
+                                          color: AppColors.darkOnSurfaceVariant,
+                                          size: 18,
+                                        ),
+                                        onPressed: () {
+                                          HapticFeedback.selectionClick();
+                                          ref
+                                              .read(focusTimerNotifierProvider
+                                                  .notifier)
+                                              .reset();
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                   const SizedBox(width: 8),
                                   Container(
                                     width: 44,
@@ -672,7 +717,9 @@ class TodayScreen extends ConsumerWidget {
                                         color: AppColors.darkOnSurfaceVariant,
                                         size: 20,
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _showDurationPickerSheet(context, ref);
+                                      },
                                     ),
                                   ),
                                 ],
@@ -692,20 +739,60 @@ class TodayScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Daily Flow',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkOnSurface,
-                  ),
+                Row(
+                  children: [
+                    const Text(
+                      'Daily Flow',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.darkOnSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.darkSurfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.darkOutlineVariant
+                              .withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        '${tasksState.remainingCount} remaining',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.darkOutline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '${tasksState.remainingCount} remaining',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.darkOutline,
+                TextButton.icon(
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => const NewTaskDialog(),
+                    );
+                  },
+                  icon: const Icon(Icons.add, size: 16, color: AppColors.primary),
+                  label: const Text(
+                    'Add Step',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ],
@@ -737,6 +824,10 @@ class TodayScreen extends ConsumerWidget {
                       ref
                           .read(tasksNotifierProvider.notifier)
                           .toggleTask(task.id);
+                    },
+                    onLongPress: () {
+                      HapticFeedback.mediumImpact();
+                      _showTaskOptionsSheet(context, ref, task);
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,6 +925,18 @@ class TodayScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.more_horiz,
+                            color: AppColors.darkOutline,
+                            size: 16,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            _showTaskOptionsSheet(context, ref, task);
+                          },
                         ),
                       ],
                     ),
@@ -962,7 +1065,10 @@ class TodayScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyMissionCard(BuildContext context) {
+  Widget _buildEmptyMissionCard(BuildContext context, WidgetRef ref) {
+    final allGoals = ref.watch(goalsNotifierProvider).goals;
+    final activeGoals = allGoals.where((g) => !g.isCompleted).toList();
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -996,25 +1102,144 @@ class TodayScreen extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => const NewGoalDialog(),
-              );
-            },
-            icon: const Icon(Icons.add, size: 18),
-            label: const Text('Create Goal'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            alignment: WrapAlignment.center,
+            children: [
+              if (activeGoals.isNotEmpty)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _showGoalSelectorSheet(context, ref, activeGoals);
+                  },
+                  icon: const Icon(Icons.stars, size: 18),
+                  label: const Text("Choose Today's Mission"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              OutlinedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => const NewGoalDialog(),
+                  );
+                },
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Create Goal'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  void _showGoalSelectorSheet(
+      BuildContext context, WidgetRef ref, List<Goal> activeGoals) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurfaceContainerLow,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.darkOutlineVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Choose Today's Mission",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkOnSurface,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Select the single active goal to anchor your focus today.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.darkOutline,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: activeGoals.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final goal = activeGoals[index];
+                      return ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: BorderSide(
+                            color: AppColors.darkOutlineVariant
+                                .withValues(alpha: 0.3),
+                          ),
+                        ),
+                        tileColor: AppColors.darkSurfaceContainerHigh,
+                        leading: const Icon(Icons.stars, color: AppColors.primary),
+                        title: Text(
+                          goal.title,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        subtitle: Text(
+                          goal.category,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.darkOutline,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios,
+                            size: 14, color: AppColors.darkOutline),
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          ref
+                              .read(goalsNotifierProvider.notifier)
+                              .setTodayMission(goal.id);
+                          Navigator.pop(ctx);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -1069,7 +1294,285 @@ class TodayScreen extends ConsumerWidget {
       ),
     );
   }
+
+  void _showDurationPickerSheet(BuildContext context, WidgetRef ref) {
+    final timerNotifier = ref.read(focusTimerNotifierProvider.notifier);
+    final timerState = ref.read(focusTimerNotifierProvider);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurfaceContainerLow,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color:
+                          AppColors.darkOutlineVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Focus Session Cadence',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Choose an intentional focus block for this task.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.darkOutline,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...[
+                  {
+                    'min': 15,
+                    'label': '15 min',
+                    'desc': 'Quick Sprint — Clear immediate friction'
+                  },
+                  {
+                    'min': 25,
+                    'label': '25 min',
+                    'desc': 'Standard Block — Optimal flow & calm'
+                  },
+                  {
+                    'min': 45,
+                    'label': '45 min',
+                    'desc': 'Deep Work — Complex creation & coding'
+                  },
+                  {
+                    'min': 60,
+                    'label': '60 min',
+                    'desc': 'Deep Immersion — Uninterrupted flow'
+                  },
+                ].map((item) {
+                  final minutes = item['min'] as int;
+                  final isCurrent = timerState.totalSeconds ~/ 60 == minutes;
+                  return InkWell(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      timerNotifier.setDuration(minutes);
+                      Navigator.pop(ctx);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? AppColors.primaryContainer.withValues(alpha: 0.3)
+                            : AppColors.darkSurfaceContainerHigh
+                                .withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isCurrent
+                              ? AppColors.primary
+                              : AppColors.darkOutlineVariant
+                                  .withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isCurrent
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_off,
+                            color: isCurrent
+                                ? AppColors.primary
+                                : AppColors.darkOutline,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['label'] as String,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isCurrent
+                                        ? Colors.white
+                                        : AppColors.darkOnSurface,
+                                  ),
+                                ),
+                                Text(
+                                  item['desc'] as String,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.darkOutline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
+                if (timerState.status != TimerStatus.initial)
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      timerNotifier.reset();
+                      Navigator.pop(ctx);
+                    },
+                    icon: const Icon(Icons.restart_alt, size: 16),
+                    label: const Text('Reset Active Timer'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.darkOutline,
+                      side: BorderSide(
+                        color: AppColors.darkOutlineVariant
+                            .withValues(alpha: 0.4),
+                      ),
+                      minimumSize: const Size(double.infinity, 44),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showTaskOptionsSheet(
+      BuildContext context, WidgetRef ref, TaskItem task) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurfaceContainerLow,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color:
+                          AppColors.darkOutlineVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  task.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (task.subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    task.subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.darkOutline,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const Icon(Icons.play_circle_outline,
+                      color: AppColors.primary),
+                  title: const Text('Set as Active Focus Step',
+                      style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    ref
+                        .read(tasksNotifierProvider.notifier)
+                        .setFocusTask(task.id);
+                    ref
+                        .read(focusTimerNotifierProvider.notifier)
+                        .setTaskAndDuration(
+                          task.title,
+                          task.durationMinutes,
+                          subtitle: task.subtitle,
+                        );
+                    Navigator.pop(ctx);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    task.isCompleted
+                        ? Icons.check_box
+                        : Icons.check_box_outline_blank,
+                    color: AppColors.successEmerald,
+                  ),
+                  title: Text(
+                    task.isCompleted
+                        ? 'Mark as Incomplete'
+                        : 'Mark as Completed',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    ref
+                        .read(tasksNotifierProvider.notifier)
+                        .toggleTask(task.id);
+                    Navigator.pop(ctx);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline,
+                      color: AppColors.errorMuted),
+                  title: const Text('Delete Step',
+                      style: TextStyle(color: AppColors.errorMuted)),
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    ref
+                        .read(tasksNotifierProvider.notifier)
+                        .deleteTask(task.id);
+                    Navigator.pop(ctx);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
+
 
 class _SingleRingPainter extends CustomPainter {
   final double progress;

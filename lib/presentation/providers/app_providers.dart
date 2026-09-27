@@ -48,7 +48,8 @@ class GoalsState {
 
   Goal? get todayMission {
     final list = goals.where((g) => g.isTodayMission && !g.isCompleted).toList();
-    return list.isNotEmpty ? list.first : (goals.isNotEmpty ? goals.first : null);
+    if (list.isNotEmpty) return list.first;
+    return null;
   }
 
   List<Goal> get activeGoals => goals.where((g) => !g.isCompleted).toList();
@@ -80,6 +81,43 @@ class GoalsNotifier extends Notifier<GoalsState> {
   Future<void> setTodayMission(String goalId) async {
     await _repo.setTodayMission(goalId);
     await loadGoals();
+  }
+
+  Future<void> deleteGoal(String goalId) async {
+    await _repo.deleteGoal(goalId);
+    await loadGoals();
+  }
+
+  Future<void> archiveGoal(String goalId) async {
+    final currentGoals = [...state.goals];
+    final gIdx = currentGoals.indexWhere((g) => g.id == goalId);
+    if (gIdx == -1) return;
+    final updated = currentGoals[gIdx].copyWith(
+      isCompleted: true,
+      completedAt: DateTime.now().toIso8601String(),
+    );
+    currentGoals[gIdx] = updated;
+    state = state.copyWith(goals: currentGoals);
+    await _repo.saveGoals(currentGoals);
+  }
+
+  Future<void> completeGoal(String goalId) async {
+    final currentGoals = [...state.goals];
+    final gIdx = currentGoals.indexWhere((g) => g.id == goalId);
+    if (gIdx == -1) return;
+    final allMilestonesCompleted = currentGoals[gIdx]
+        .milestones
+        .map((m) => m.copyWith(isCompleted: true))
+        .toList();
+    final updated = currentGoals[gIdx].copyWith(
+      isCompleted: true,
+      progress: 1.0,
+      completedAt: DateTime.now().toIso8601String(),
+      milestones: allMilestonesCompleted,
+    );
+    currentGoals[gIdx] = updated;
+    state = state.copyWith(goals: currentGoals);
+    await _repo.saveGoals(currentGoals);
   }
 
   Future<void> toggleMilestone(String goalId, String milestoneId) async {
@@ -196,27 +234,43 @@ class TasksNotifier extends Notifier<TasksState> {
     await loadTasks();
   }
 
+  Future<void> setFocusTask(String taskId) async {
+    await _repo.setFocusTask(taskId);
+    await loadTasks();
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    await _repo.deleteTask(taskId);
+    await loadTasks();
+  }
+
   Future<void> addTask({
     required String title,
     required String subtitle,
     required String scheduledTime,
     int durationMinutes = 25,
+    String? goalId,
+    bool isCurrentFocus = false,
   }) async {
     final uuid = const Uuid();
+    final newLength = state.tasks.length + 1;
     final newTask = TaskItem(
       id: 'task_${uuid.v4().substring(0, 8)}',
+      goalId: goalId,
       title: title,
       subtitle: subtitle,
       scheduledTime: scheduledTime,
       durationMinutes: durationMinutes,
-      order: state.tasks.length + 1,
-      stepNumber: state.tasks.length + 1,
-      totalSteps: state.tasks.length + 1,
+      isCurrentFocus: isCurrentFocus || state.tasks.isEmpty,
+      order: newLength,
+      stepNumber: newLength,
+      totalSteps: newLength,
     );
     await _repo.addTask(newTask);
     await loadTasks();
   }
 }
+
 
 final tasksNotifierProvider =
     NotifierProvider<TasksNotifier, TasksState>(TasksNotifier.new);
@@ -315,6 +369,10 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
       subtitle: subtitle,
       durationMinutes: minutes,
     );
+  }
+
+  void setDuration(int minutes) {
+    setTaskAndDuration(state.taskTitle, minutes, subtitle: state.subtitle);
   }
 
   void startOrResume() {
@@ -420,14 +478,92 @@ class ProgressNotifier extends Notifier<ProgressState> {
 
   Future<void> loadProgress() async {
     state = state.copyWith(isLoading: true);
-    final milestones = await _repo.getMilestones();
+    var milestones = await _repo.getMilestones();
     final reflections = await _repo.getReflections();
+    final tasks = await ref.read(taskRepositoryProvider).getTasks();
+    final goals = await ref.read(goalRepositoryProvider).getGoals();
+
+    // Calculate real focus hours
+    final completedTasks = tasks.where((t) => t.isCompleted).toList();
+    final totalFocusMinutes = completedTasks.fold<int>(
+      0,
+      (sum, t) => sum + t.durationMinutes,
+    );
+    final focusHours = totalFocusMinutes > 0 ? (totalFocusMinutes / 60.0) : 0.0;
+
+    // Calculate Missions progress
+    final totalMilestones =
+        goals.fold<int>(0, (sum, g) => sum + g.milestones.length);
+    final completedMilestones = goals.fold<int>(
+      0,
+      (sum, g) => sum + g.milestones.where((m) => m.isCompleted).length,
+    );
+    final double missionsProgress = totalMilestones > 0
+        ? (completedMilestones / totalMilestones)
+        : (goals.isNotEmpty
+            ? (goals.where((g) => g.isCompleted).length / goals.length)
+            : 0.5);
+
+    // Calculate Habits progress
+    final double habitsProgress = tasks.isNotEmpty
+        ? (completedTasks.length / tasks.length)
+        : 0.5;
+
+    // Focus hours progress (goal is 20 hours)
+    final double focusHoursProgress =
+        (focusHours / 20.0).clamp(0.0, 1.0);
+
+    // Harmony Score
+    final double harmonyScore = ((missionsProgress +
+                habitsProgress +
+                (focusHours > 0 ? focusHoursProgress : 0.5)) /
+            3.0)
+        .clamp(0.0, 1.0);
+
+    // Automatic Milestone Unlocking
+    bool milestonesUpdated = false;
+    milestones = milestones.map((m) {
+      bool shouldUnlock = m.isUnlocked;
+      if (m.id == 'badge_clean_finish' &&
+          tasks.isNotEmpty &&
+          completedTasks.length == tasks.length) {
+        shouldUnlock = true;
+      } else if (m.id == 'badge_deep_work' && focusHours >= 10.0) {
+        shouldUnlock = true;
+      } else if (m.id == 'badge_evening_peace' && reflections.length >= 7) {
+        shouldUnlock = true;
+      } else if (m.id == 'badge_calm_mastery' &&
+          goals.any((g) => g.isCompleted)) {
+        shouldUnlock = true;
+      } else if (m.id == 'badge_5day_flow' && reflections.length >= 5) {
+        shouldUnlock = true;
+      }
+      if (shouldUnlock != m.isUnlocked) {
+        milestonesUpdated = true;
+        return m.copyWith(
+          isUnlocked: true,
+          unlockedDate: DateTime.now().toIso8601String().substring(0, 10),
+        );
+      }
+      return m;
+    }).toList();
+
+    if (milestonesUpdated) {
+      await _repo.saveMilestones(milestones);
+    }
+
     state = state.copyWith(
       milestones: milestones,
       reflections: reflections,
       isLoading: false,
+      missionsProgress: missionsProgress,
+      habitsProgress: habitsProgress,
+      focusHours: focusHours,
+      focusHoursProgress: focusHoursProgress,
+      harmonyScore: harmonyScore,
     );
   }
+
 
   Future<void> submitReflection({
     required String mood,

@@ -301,12 +301,14 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Block Duration (up to 4 hrs)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkOnSurface,
+                  const Expanded(
+                    child: Text(
+                      'Block Duration',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.darkOnSurface,
+                      ),
                     ),
                   ),
                   Container(

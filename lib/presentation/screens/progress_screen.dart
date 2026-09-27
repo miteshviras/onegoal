@@ -167,6 +167,7 @@ class ProgressScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = ref.watch(progressNotifierProvider);
     final userProfile = ref.watch(userProfileNotifierProvider);
+    final tasksState = ref.watch(tasksNotifierProvider);
 
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
@@ -238,9 +239,11 @@ class ProgressScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header statement
-            const Text(
-              'You showed up 5 out of 6 days',
-              style: TextStyle(
+            Text(
+              tasksState.completedCount > 0
+                  ? 'You completed ${tasksState.completedCount} of ${tasksState.totalCount} focus steps'
+                  : 'Intentional rhythm awaits',
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: AppColors.darkOnSurface,
@@ -287,7 +290,8 @@ class ProgressScreen extends ConsumerWidget {
                             _buildLegendItem(
                               color: AppColors.primary,
                               title: 'Daily Missions',
-                              subtitle: '6 completed steps',
+                              subtitle:
+                                  '${tasksState.completedCount} completed steps',
                               value:
                                   '${(progress.missionsProgress * 100).toInt()}%',
                             ),
@@ -335,7 +339,7 @@ class ProgressScreen extends ConsumerWidget {
                       Expanded(
                         child: _buildMiniStat(
                           'Next Steps',
-                          '6 done',
+                          '${tasksState.completedCount} done',
                           AppColors.successEmerald,
                         ),
                       ),

@@ -408,15 +408,27 @@ class ProfileScreen extends ConsumerWidget {
                         color: AppColors.primary,
                       ),
                     ),
-                    onTap: () {
+                    onTap: () async {
                       HapticFeedback.selectionClick();
-                      // toggle between 8:30 PM, 9:00 PM, 9:30 PM
-                      final next = profile.eveningRitualTime == '8:30 PM'
-                          ? '9:00 PM'
-                          : (profile.eveningRitualTime == '9:00 PM'
-                              ? '9:30 PM'
-                              : '8:30 PM');
-                      notifier.setEveningRitualTime(next);
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: const TimeOfDay(hour: 21, minute: 0),
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.dark(
+                                primary: AppColors.primary,
+                                surface: AppColors.darkSurfaceContainer,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (picked != null && context.mounted) {
+                        final formatted = picked.format(context);
+                        notifier.setEveningRitualTime(formatted);
+                      }
                     },
                   ),
                   _buildDivider(),

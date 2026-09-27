@@ -28,7 +28,163 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
     );
   }
 
+  void _openGoalOptionsSheet(Goal goal) {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.darkOutline.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  goal.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkOnSurface,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${goal.category} • Due in ${goal.dueInDays} days',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.darkOutline,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const Icon(
+                    Icons.account_tree_outlined,
+                    color: AppColors.primary,
+                  ),
+                  title: const Text(
+                    'Milestone Breakdown',
+                    style: TextStyle(color: AppColors.darkOnSurface),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _openBreakdown(goal);
+                  },
+                ),
+                if (!goal.isCompleted && !goal.isTodayMission)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.bolt,
+                      color: AppColors.secondary,
+                    ),
+                    title: const Text(
+                      "Set as Today's Mission",
+                      style: TextStyle(color: AppColors.darkOnSurface),
+                    ),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      ref
+                          .read(goalsNotifierProvider.notifier)
+                          .setTodayMission(goal.id);
+                    },
+                  ),
+                if (!goal.isCompleted)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.check_circle_outline,
+                      color: AppColors.successEmerald,
+                    ),
+                    title: const Text(
+                      'Mark as Completed',
+                      style: TextStyle(color: AppColors.darkOnSurface),
+                    ),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      ref
+                          .read(goalsNotifierProvider.notifier)
+                          .completeGoal(goal.id);
+                    },
+                  ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.archive_outlined,
+                    color: AppColors.darkOnSurfaceVariant,
+                  ),
+                  title: const Text(
+                    'Archive Goal',
+                    style: TextStyle(color: AppColors.darkOnSurface),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    ref
+                        .read(goalsNotifierProvider.notifier)
+                        .archiveGoal(goal.id);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline,
+                    color: AppColors.error,
+                  ),
+                  title: const Text(
+                    'Delete Goal',
+                    style: TextStyle(color: AppColors.error),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    ref
+                        .read(goalsNotifierProvider.notifier)
+                        .deleteGoal(goal.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Deleted "${goal.title}"'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _openNewGoalDialog() {
+    final activeGoals = ref.read(goalsNotifierProvider).activeGoals;
+    if (activeGoals.length >= 3) {
+      HapticFeedback.heavyImpact();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.darkSurfaceContainerHighest,
+          content: Text(
+            'Active focus cap reached (3 of 3 slots). Complete or archive an existing goal to maintain calm focus.',
+            style: TextStyle(color: AppColors.secondary),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     HapticFeedback.selectionClick();
     showDialog(
       context: context,
@@ -42,18 +198,20 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
     final activeGoals = goalsState.activeGoals;
     final completedGoals = goalsState.completedGoals;
 
-    // Primary goal is usually the first active or the today's mission
     Goal? primaryGoal;
     final remainingActive = <Goal>[];
 
-    for (final g in activeGoals) {
-      if (primaryGoal == null && g.isTodayMission) {
-        primaryGoal = g;
-      } else if (primaryGoal == null) {
-        primaryGoal = g;
-      } else {
-        remainingActive.add(g);
+    final missionIndex = activeGoals.indexWhere((g) => g.isTodayMission);
+    if (missionIndex != -1) {
+      primaryGoal = activeGoals[missionIndex];
+      for (int i = 0; i < activeGoals.length; i++) {
+        if (i != missionIndex) {
+          remainingActive.add(activeGoals[i]);
+        }
       }
+    } else if (activeGoals.isNotEmpty) {
+      primaryGoal = activeGoals.first;
+      remainingActive.addAll(activeGoals.sublist(1));
     }
 
     return Scaffold(
@@ -162,6 +320,18 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
             ],
 
             // Supporting Goals
+            if (remainingActive.isNotEmpty) ...[
+              Text(
+                'Secondary Active Horizons (${remainingActive.length})',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkOutline,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
             ...remainingActive.map((goal) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -390,57 +560,91 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.darkSurfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color:
-                            AppColors.darkOutlineVariant.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      goal.category,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.event,
-                        size: 14,
-                        color: AppColors.darkOutline,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Due in ${goal.dueInDays} days',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.darkOnSurfaceVariant,
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (goal.isTodayMission)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color:
+                              AppColors.primaryContainer.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.stars, color: AppColors.primary, size: 12),
+                            SizedBox(width: 4),
+                            Text(
+                              "Today's Mission",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.darkSurfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color:
+                              AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        goal.category,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.event,
+                          size: 14,
+                          color: AppColors.darkOutline,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Due in ${goal.dueInDays} days',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.darkOnSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               IconButton(
+                visualDensity: VisualDensity.compact,
                 icon: const Icon(
                   Icons.more_horiz,
                   color: AppColors.darkOutline,
                   size: 20,
                 ),
-                onPressed: () => _openBreakdown(goal),
+                onPressed: () => _openGoalOptionsSheet(goal),
               ),
             ],
           ),
@@ -672,59 +876,78 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => _openBreakdown(goal),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.darkSurfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  goal.category,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.tertiaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.tertiary.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Text('🔥', style: TextStyle(fontSize: 12)),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${goal.streakDays}-day streak',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.tertiary,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.darkSurfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.darkOutlineVariant
+                                .withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          goal.category,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color:
+                              AppColors.tertiaryContainer.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.tertiary.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Text('🔥', style: TextStyle(fontSize: 12)),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${goal.streakDays}-day streak',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.tertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.more_horiz,
+                      color: AppColors.darkOutline,
+                      size: 20,
                     ),
-                  ],
-                ),
+                    onPressed: () => _openGoalOptionsSheet(goal),
+                  ),
+                ],
               ),
-            ],
-          ),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -811,7 +1034,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildEmptyGoalsCard(BuildContext context) {

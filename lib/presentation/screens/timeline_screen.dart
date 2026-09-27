@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 import '../widgets/new_task_dialog.dart';
@@ -13,18 +14,25 @@ class TimelineScreen extends ConsumerStatefulWidget {
 }
 
 class _TimelineScreenState extends ConsumerState<TimelineScreen> {
-  int _selectedDayIndex = 3; // Thursday (24)
+  late int _selectedDayIndex;
   bool _isBannerDismissed = false;
 
-  final _days = const [
-    {'day': 'M', 'date': '21'},
-    {'day': 'T', 'date': '22'},
-    {'day': 'W', 'date': '23'},
-    {'day': 'Th', 'date': '24'},
-    {'day': 'F', 'date': '25'},
-    {'day': 'S', 'date': '26'},
-    {'day': 'Su', 'date': '27'},
-  ];
+  static const _dayNames = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDayIndex = DateTime.now().weekday - 1;
+    if (_selectedDayIndex < 0 || _selectedDayIndex > 6) {
+      _selectedDayIndex = 0;
+    }
+  }
+
+  DateTime get _startOfWeek {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+  }
 
   void _openAddTaskDialog() {
     HapticFeedback.selectionClick();
@@ -34,10 +42,128 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     );
   }
 
+  void _showBlockOptionsSheet(BuildContext context, dynamic task) {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.darkOutline.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  task.title as String,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkOnSurface,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${task.scheduledTime} • ${task.durationMinutes} minutes',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.darkOutline,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: Icon(
+                    (task.isCompleted as bool)
+                        ? Icons.undo
+                        : Icons.check_circle_outline,
+                    color: AppColors.successEmerald,
+                  ),
+                  title: Text(
+                    (task.isCompleted as bool)
+                        ? 'Mark as Incomplete'
+                        : 'Mark as Completed',
+                    style: const TextStyle(color: AppColors.darkOnSurface),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    ref
+                        .read(tasksNotifierProvider.notifier)
+                        .toggleTask(task.id as String);
+                  },
+                ),
+                if (!(task.isCompleted as bool))
+                  ListTile(
+                    leading: const Icon(
+                      Icons.play_arrow,
+                      color: AppColors.primary,
+                    ),
+                    title: const Text(
+                      'Set as Current Focus Block',
+                      style: TextStyle(color: AppColors.darkOnSurface),
+                    ),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      ref
+                          .read(tasksNotifierProvider.notifier)
+                          .setFocusTask(task.id as String);
+                    },
+                  ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline,
+                    color: AppColors.error,
+                  ),
+                  title: const Text(
+                    'Delete Block',
+                    style: TextStyle(color: AppColors.error),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    ref
+                        .read(tasksNotifierProvider.notifier)
+                        .deleteTask(task.id as String);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Removed "${task.title}"'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tasksState = ref.watch(tasksNotifierProvider);
     final timerState = ref.watch(focusTimerNotifierProvider);
+
+    final selectedDate =
+        _startOfWeek.add(Duration(days: _selectedDayIndex));
+    final headerDateStr = DateFormat('EEEE, MMM d').format(selectedDate);
+    final isTodaySelected = _selectedDayIndex == (DateTime.now().weekday - 1);
 
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
@@ -62,9 +188,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Thursday, Oct 24',
-                        style: TextStyle(
+                      Text(
+                        headerDateStr,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: AppColors.darkOnSurface,
@@ -133,9 +259,13 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(_days.length, (index) {
+                children: List.generate(7, (index) {
                   final isSelected = _selectedDayIndex == index;
-                  final item = _days[index];
+                  final dayDate = _startOfWeek.add(Duration(days: index));
+                  final isCurrentDay = index == (DateTime.now().weekday - 1);
+                  final dayLetter = _dayNames[index];
+                  final dateNumber = '${dayDate.day}';
+
                   return Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -151,32 +281,41 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: isSelected
                               ? Border.all(
-                                  color:
-                                      AppColors.primary.withValues(alpha: 0.4),
+                                  color: AppColors.primary
+                                      .withValues(alpha: 0.4),
                                 )
-                              : null,
+                              : (isCurrentDay
+                                  ? Border.all(
+                                      color: AppColors.darkOutlineVariant
+                                          .withValues(alpha: 0.4),
+                                    )
+                                  : null),
                         ),
                         child: Column(
                           children: [
                             Text(
-                              item['day']!,
+                              dayLetter,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: isSelected
                                     ? AppColors.primary
-                                    : AppColors.darkOutline,
+                                    : (isCurrentDay
+                                        ? AppColors.primary.withValues(alpha: 0.8)
+                                        : AppColors.darkOutline),
                               ),
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              item['date']!,
+                              dateNumber,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: isSelected
                                     ? Colors.white
-                                    : AppColors.darkOnSurface,
+                                    : (isCurrentDay
+                                        ? AppColors.primary
+                                        : AppColors.darkOnSurface),
                               ),
                             ),
                           ],
@@ -258,15 +397,15 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                           ),
                           const SizedBox(height: 3),
                           RichText(
-                            text: const TextSpan(
-                              style: TextStyle(
+                            text: TextSpan(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.darkOnSurface,
                                 height: 1.3,
                               ),
                               children: [
-                                TextSpan(text: 'Notice: You have a '),
-                                TextSpan(
+                                const TextSpan(text: 'Notice: You have a '),
+                                const TextSpan(
                                   text: '45 min buffer',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -274,8 +413,10 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                   ),
                                 ),
                                 TextSpan(
-                                    text:
-                                        ' after staging deploy. Perfect for a quiet walk.'),
+                                  text: tasksState.completedCount > 0
+                                      ? ' after recent progress. Perfect for mindful reflection.'
+                                      : ' after your next session. Perfect for a quiet walk.',
+                                ),
                               ],
                             ),
                           ),
@@ -301,266 +442,321 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
             // Vertical Timeline Flow
             if (tasksState.tasks.isNotEmpty)
               Stack(
-              children: [
-                // Hairline vertical guide bar
-                Positioned(
-                  left: 19,
-                  top: 20,
-                  bottom: 30,
-                  child: Container(
-                    width: 2,
-                    color: AppColors.darkSurfaceContainerHighest,
+                children: [
+                  // Hairline vertical guide bar
+                  Positioned(
+                    left: 19,
+                    top: 20,
+                    bottom: 30,
+                    child: Container(
+                      width: 2,
+                      color: AppColors.darkSurfaceContainerHighest,
+                    ),
                   ),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: tasksState.tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = tasksState.tasks[index];
-                    final isDone = task.isCompleted;
-                    final isFocus = task.isCurrentFocus && !isDone;
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: tasksState.tasks.length,
+                    itemBuilder: (context, index) {
+                      final task = tasksState.tasks[index];
+                      final isDone = task.isCompleted;
+                      final isFocus = task.isCurrentFocus && !isDone;
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Live Time Indicator inserted right before active item
-                        if (isFocus) _buildLiveTimeIndicator(),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Left timeline node circle
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isDone
-                                      ? AppColors.successEmerald
-                                      : (isFocus
-                                          ? AppColors.primary
-                                          : AppColors.darkSurfaceContainer),
-                                  border: Border.all(
-                                    color: isFocus
-                                        ? AppColors.primary
-                                            .withValues(alpha: 0.3)
-                                        : AppColors.darkOutlineVariant
-                                            .withValues(alpha: 0.4),
-                                    width: isFocus ? 3 : 1,
-                                  ),
-                                  boxShadow: isFocus
-                                      ? [
-                                          BoxShadow(
-                                            color: AppColors.primary
-                                                .withValues(alpha: 0.35),
-                                            blurRadius: 10,
-                                            spreadRadius: 2,
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                                child: Icon(
-                                  isDone
-                                      ? Icons.check
-                                      : (isFocus
-                                          ? Icons.play_arrow
-                                          : Icons.radio_button_unchecked),
-                                  color: isDone || isFocus
-                                      ? Colors.black
-                                      : AppColors.darkOutline,
-                                  size: isFocus ? 22 : 18,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              // Task Card
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: isFocus
-                                        ? AppColors.darkSurfaceContainer
-                                        : AppColors.darkSurfaceContainerLow
-                                            .withValues(
-                                                alpha: isDone ? 0.7 : 1.0),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: isFocus
-                                          ? AppColors.primary
-                                              .withValues(alpha: 0.4)
-                                          : AppColors.darkOutlineVariant
-                                              .withValues(alpha: 0.25),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Live Time Indicator inserted right before active item if today is selected
+                          if (isFocus && isTodaySelected)
+                            _buildLiveTimeIndicator(),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Left timeline node circle
+                                GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    ref
+                                        .read(tasksNotifierProvider.notifier)
+                                        .toggleTask(task.id);
+                                  },
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: isDone
+                                          ? AppColors.successEmerald
+                                          : (isFocus
+                                              ? AppColors.primary
+                                              : AppColors
+                                                  .darkSurfaceContainer),
+                                      border: Border.all(
+                                        color: isFocus
+                                            ? AppColors.primary
+                                                .withValues(alpha: 0.3)
+                                            : AppColors.darkOutlineVariant
+                                                .withValues(alpha: 0.4),
+                                        width: isFocus ? 3 : 1,
+                                      ),
+                                      boxShadow: isFocus
+                                          ? [
+                                              BoxShadow(
+                                                color: AppColors.primary
+                                                    .withValues(alpha: 0.35),
+                                                blurRadius: 10,
+                                                spreadRadius: 2,
+                                              ),
+                                            ]
+                                          : null,
                                     ),
-                                    boxShadow: isFocus
-                                        ? [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.4),
-                                              blurRadius: 12,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ]
-                                        : null,
+                                    child: Icon(
+                                      isDone
+                                          ? Icons.check
+                                          : (isFocus
+                                              ? Icons.play_arrow
+                                              : Icons
+                                                  .radio_button_unchecked),
+                                      color: isDone || isFocus
+                                          ? Colors.black
+                                          : AppColors.darkOutline,
+                                      size: isFocus ? 22 : 18,
+                                    ),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                ),
+                                const SizedBox(width: 12),
+                                // Task Card
+                                Expanded(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(16),
+                                    onTap: () =>
+                                        _showBlockOptionsSheet(context, task),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      decoration: BoxDecoration(
+                                        color: isFocus
+                                            ? AppColors.darkSurfaceContainer
+                                            : AppColors
+                                                .darkSurfaceContainerLow
+                                                .withValues(
+                                                    alpha: isDone ? 0.7 : 1.0),
+                                        borderRadius:
+                                            BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isFocus
+                                              ? AppColors.primary
+                                                  .withValues(alpha: 0.4)
+                                              : AppColors.darkOutlineVariant
+                                                  .withValues(alpha: 0.25),
+                                        ),
+                                        boxShadow: isFocus
+                                            ? [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.4),
+                                                  blurRadius: 12,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ]
+                                            : null,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .spaceBetween,
+                                            children: [
+                                              Text(
+                                                '${task.scheduledTime} • ${task.durationMinutes}m',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isDone
+                                                      ? AppColors
+                                                          .successEmerald
+                                                      : (isFocus
+                                                          ? AppColors.primary
+                                                          : AppColors
+                                                              .darkOutline),
+                                                  letterSpacing: 0.3,
+                                                ),
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 2),
+                                                    decoration: BoxDecoration(
+                                                      color: isDone
+                                                          ? AppColors
+                                                              .successEmerald
+                                                              .withValues(
+                                                                  alpha: 0.15)
+                                                          : (isFocus
+                                                              ? AppColors
+                                                                  .primaryContainer
+                                                              : AppColors
+                                                                  .darkSurfaceContainerHighest),
+                                                      borderRadius:
+                                                          BorderRadius
+                                                              .circular(10),
+                                                    ),
+                                                    child: Text(
+                                                      isDone
+                                                          ? 'Finished'
+                                                          : (isFocus
+                                                              ? 'Focus Mode'
+                                                              : 'Upcoming'),
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: isDone
+                                                            ? AppColors
+                                                                .successEmerald
+                                                            : (isFocus
+                                                                ? Colors.white
+                                                                : AppColors
+                                                                    .darkOnSurfaceVariant),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  const Icon(
+                                                    Icons.more_vert,
+                                                    size: 16,
+                                                    color:
+                                                        AppColors.darkOutline,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
                                           Text(
-                                            '${task.scheduledTime} • ${task.durationMinutes}m',
+                                            task.title,
                                             style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                              fontWeight: isFocus
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w600,
                                               color: isDone
-                                                  ? AppColors.successEmerald
-                                                  : (isFocus
-                                                      ? AppColors.primary
-                                                      : AppColors.darkOutline),
-                                              letterSpacing: 0.3,
+                                                  ? AppColors.darkOutline
+                                                  : AppColors.darkOnSurface,
+                                              decoration: isDone
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
                                             ),
                                           ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: isDone
-                                                  ? AppColors.successEmerald
-                                                      .withValues(alpha: 0.15)
-                                                  : (isFocus
-                                                      ? AppColors
-                                                          .primaryContainer
-                                                      : AppColors
-                                                          .darkSurfaceContainerHighest),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Text(
-                                              isDone
-                                                  ? 'Finished'
-                                                  : (isFocus
-                                                      ? 'Focus Mode'
-                                                      : 'Upcoming'),
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                color: isDone
-                                                    ? AppColors.successEmerald
-                                                    : (isFocus
-                                                        ? Colors.white
-                                                        : AppColors
-                                                            .darkOnSurfaceVariant),
+                                          if (task.subtitle.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              task.subtitle,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.darkOutline,
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        task.title,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: isFocus
-                                              ? FontWeight.bold
-                                              : FontWeight.w600,
-                                          color: isDone
-                                              ? AppColors.darkOutline
-                                              : AppColors.darkOnSurface,
-                                          decoration: isDone
-                                              ? TextDecoration.lineThrough
-                                              : null,
-                                        ),
-                                      ),
-                                      if (task.subtitle.isNotEmpty) ...[
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          task.subtitle,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.darkOutline,
-                                          ),
-                                        ),
-                                      ],
-                                      // Active Focus Card controls
-                                      if (isFocus) ...[
-                                        const SizedBox(height: 12),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
+                                          ],
+                                          // Active Focus Card controls
+                                          if (isFocus) ...[
+                                            const SizedBox(height: 12),
                                             Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
-                                                const Icon(
-                                                  Icons.timelapse,
-                                                  size: 16,
-                                                  color: AppColors.secondary,
+                                                Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.timelapse,
+                                                      size: 16,
+                                                      color:
+                                                          AppColors.secondary,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      timerState.status ==
+                                                              TimerStatus
+                                                                  .running
+                                                          ? timerState
+                                                              .formattedTime
+                                                          : '${task.durationMinutes} min remaining',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: AppColors
+                                                            .primary,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  timerState.status ==
-                                                          TimerStatus.running
-                                                      ? timerState.formattedTime
-                                                      : '${task.durationMinutes} min remaining',
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: AppColors.primary,
+                                                FilledButton.icon(
+                                                  onPressed: () {
+                                                    HapticFeedback
+                                                        .mediumImpact();
+                                                    ref
+                                                        .read(
+                                                            tasksNotifierProvider
+                                                                .notifier)
+                                                        .toggleTask(task.id);
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.check_circle,
+                                                    size: 16,
+                                                  ),
+                                                  label:
+                                                      const Text('Complete'),
+                                                  style:
+                                                      FilledButton.styleFrom(
+                                                    backgroundColor:
+                                                        AppColors.primary,
+                                                    foregroundColor:
+                                                        Colors.black,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius
+                                                              .circular(12),
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets
+                                                            .symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 8,
+                                                    ),
+                                                    textStyle:
+                                                        const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            FilledButton.icon(
-                                              onPressed: () {
-                                                HapticFeedback.mediumImpact();
-                                                ref
-                                                    .read(tasksNotifierProvider
-                                                        .notifier)
-                                                    .toggleTask(task.id);
-                                              },
-                                              icon: const Icon(
-                                                Icons.check_circle,
-                                                size: 16,
-                                              ),
-                                              label: const Text('Complete'),
-                                              style: FilledButton.styleFrom(
-                                                backgroundColor:
-                                                    AppColors.primary,
-                                                foregroundColor: Colors.black,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 14,
-                                                  vertical: 8,
-                                                ),
-                                                textStyle: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
                                           ],
-                                        ),
-                                      ],
-                                    ],
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            )
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              )
             else
               _buildEmptyTimeline(context),
           ],
@@ -570,6 +766,8 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
   }
 
   Widget _buildLiveTimeIndicator() {
+    final currentTimeStr = DateFormat('h:mm a').format(DateTime.now());
+
     return Padding(
       padding: const EdgeInsets.only(left: 10, bottom: 12),
       child: Row(
@@ -609,9 +807,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Text(
-                  'Current Time: 1:45 PM',
-                  style: TextStyle(
+                Text(
+                  'Current Time: $currentTimeStr',
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color: AppColors.secondary,
