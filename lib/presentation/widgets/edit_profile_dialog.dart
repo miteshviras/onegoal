@@ -579,69 +579,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                     ),
                   ),
 
-                  // Quick Action Buttons: Gallery & Camera
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _pickImage(ImageSource.gallery),
-                          icon: const Icon(
-                            Icons.photo_library_outlined,
-                            size: 18,
-                          ),
-                          label: Text(
-                            'Gallery',
-                            style: GoogleFonts.manrope(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.darkOnSurface,
-                            backgroundColor: AppColors.darkSurfaceContainerLow,
-                            side: BorderSide(
-                              color: AppColors.darkOutlineVariant
-                                  .withValues(alpha: 0.4),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _pickImage(ImageSource.camera),
-                          icon: const Icon(
-                            Icons.photo_camera_outlined,
-                            size: 18,
-                          ),
-                          label: Text(
-                            'Camera',
-                            style: GoogleFonts.manrope(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.darkOnSurface,
-                            backgroundColor: AppColors.darkSurfaceContainerLow,
-                            side: BorderSide(
-                              color: AppColors.darkOutlineVariant
-                                  .withValues(alpha: 0.4),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+
                   if (!_avatarPresets.any((p) => p['url'] == _selectedAvatar) &&
                       _selectedAvatar.isNotEmpty) ...[
                     const SizedBox(height: 10),

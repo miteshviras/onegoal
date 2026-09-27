@@ -1,56 +1,158 @@
 # OneGoal — Mindful Daily Goal Planner
 
-> **“One Goal. One Day. One Next Step.”**  
-> A behavior-first productivity app engineered to feel like a calm personal coach rather than an overwhelming task manager.
+<p align="center">
+  <img src="assets/images/logo.png" alt="OneGoal Logo" width="100" onerror="this.style.display='none'"/>
+</p>
 
-Built with **Flutter 3.47+**, **Riverpod 3**, and designed from the **Google Stitch** design system.
+<p align="center">
+  <strong>“One Goal. One Day. One Next Step.”</strong><br>
+  An open-source, mindful productivity app engineered to feel like a calm personal coach rather than an overwhelming task manager.
+</p>
+
+<p align="center">
+  <a href="https://flutter.dev"><img src="https://img.shields.io/badge/Flutter-3.47+-02569B?logo=flutter&logoColor=white" alt="Flutter 3.47+"></a>
+  <a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.13+-0175C2?logo=dart&logoColor=white" alt="Dart 3.13+"></a>
+  <a href="https://riverpod.dev"><img src="https://img.shields.io/badge/State-Riverpod%203-blueviolet" alt="Riverpod 3"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-success.svg" alt="License: MIT"></a>
+  <a href="https://github.com/miteshviras/onegoal/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
+  <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey" alt="Cross Platform">
+</p>
+
+---
+
+## 📱 App Screenshots
+
+### Core Daily Rhythm
+| Today's Mission | Active Horizons | Mindful Timeline |
+| :---: | :---: | :---: |
+| <img src="screenshots/01_today.png" width="270" alt="Today Screen" /> | <img src="screenshots/02_goals.png" width="270" alt="Goals Screen" /> | <img src="screenshots/03_timeline.png" width="270" alt="Timeline Screen" /> |
+| **Focus • Today**<br>Single daily priority, focus timer & guidance | **Active Horizons**<br>Cognitive 3-slot cap with milestone tracking | **Intentional Timeline**<br>Mini-week rhythm ribbon & smart buffers |
+
+### Reflection & Calibration
+| Concentric Progress Rings | Evening Reflection Ritual | Profile & Mindful Settings |
+| :---: | :---: | :---: |
+| <img src="screenshots/04_progress.png" width="270" alt="Progress Screen" /> | <img src="screenshots/05_evening_reflection.png" width="270" alt="Evening Reflection" /> | <img src="screenshots/06_profile.png" width="270" alt="Profile Screen" /> |
+| **Harmony Rings**<br>Triple-ring metrics & identity reinforcement | **Evening Ritual**<br>Mindful 2-minute wind-down & reset check-in | **Calm Architecture**<br>Focus durations, companion tone & habits |
+
+---
+
+## 🧘 Why OneGoal? (The Philosophy)
+
+Traditional productivity systems trap users in an anxiety loop of infinite to-do lists, overdue badges, and fragile streaks. When life interrupts, falling behind creates shame and abandonment.
+
+**OneGoal takes a behavioral-first approach:**
+- **The Rule of One**: You accomplish more by completing **one intentional mission** every day than carrying forward twenty unfinished tasks.
+- **Zero Guilt Triggers**: Uncompleted tasks roll forward gracefully during the Evening Reflection ritual with zero shame badges.
+- **Cognitive Guardrails**: Active quarterly horizons are strictly capped at 3 slots to avoid burnout.
+- **Proof of Self-Trust**: Progress is measured in calm consistency and quiet milestones rather than gamified points.
 
 ---
 
 ## ✨ Features at a Glance
 
-- **🎯 Today's Mission**: Keep your day centered on a single high-impact initiative rather than infinite to-do lists.
-- **⏱️ In-Focus Pomodoro**: Tactile 25-minute focus session with live pause, resume, and completion states.
-- **🧭 Active Horizons (3 Slots)**: Limit active quarterly goals to avoid cognitive overload.
-- **📅 Mindful Timeline**: Mini-week rhythm ribbon, live time indicator, and coach buffer recommendations.
-- **⭕ Concentric Progress Rings**: Apple Health style triple rings tracking Missions, Habits, and Focus Hours with a harmony score.
-- **🌙 Evening Reflection Ritual**: 2-minute reset check-in with mood tracking and private reflection journal.
-- **🏅 Quiet Milestones**: Non-gamified proof of self-trust built over time.
-- **🌗 Fidelity Theming**: Seamless switching between Dark Graphite and Warm Paper Studio modes.
-- **💾 Local-First & Laravel Ready**: Complete offline storage today, with clean REST client interfaces ready for Laravel backend integration tomorrow.
+- **🎯 Today's Mission**: Center each day on a single high-impact initiative, broken down into manageable micro-steps.
+- **⏱️ In-Focus Session**: Tactile focus timer (25m, 45m, 60m sprints) with live pause, resume, and haptic feedback.
+- **🧭 Active Horizons (3 Slots)**: Strict 3-goal limit that ensures deep focus on what truly matters this quarter.
+- **📅 Mindful Timeline**: Mini-week rhythm ribbon, live time indicator, and coach buffer recommendations between sprints.
+- **⭕ Concentric Progress Rings**: Triple concentric rings tracking Daily Missions, Habit Consistency, and Deep Work hours with a holistic Harmony score.
+- **🌙 Evening Reflection Ritual**: 2-minute reset check-in with mood tracking, unblocking notes, and mindful journal logging.
+- **🏅 Quiet Milestones**: Non-gamified proof of self-trust built steadily over time (Deep Work, 5-Day Flow, Clean Finish).
+- **🌗 Fidelity Calm Theming**: High-contrast, battery-friendly Dark Graphite theme designed for focus and reduced eye strain.
+- **💾 Local-First & Offline-Ready**: Full offline persistence via `SharedPreferences`, architected with clean repository abstractions ready for REST / backend synchronization.
 
 ---
 
-## 🚀 Quick Start
+## 🏗️ Architecture & Project Structure
+
+OneGoal is built following **Clean Architecture** principles and powered by **Riverpod 3 Notifier** state management:
+
+```text
+lib/
+├── core/
+│   ├── constants/       # AppColors, palette definitions, styling constants
+│   ├── services/        # StorageService, ApiService, LockscreenTimerService
+│   └── theme/           # AppTheme configuration, Typography, Dark theme tokens
+├── data/
+│   ├── models/          # Goal, TaskItem, UserProfile, DailyReflection, QuietMilestone
+│   └── repositories/    # GoalRepository, TaskRepository, ProgressRepository, UserRepository
+└── presentation/
+    ├── providers/       # Riverpod 3 NotifierProviders (UserProfile, Goals, Tasks, Progress)
+    ├── screens/         # OnboardingScreen, TodayScreen, GoalsScreen, TimelineScreen, ProgressScreen, ProfileScreen
+    └── widgets/         # Concentric Progress Rings Painter, Ritual Cards, Edit Profile Sheet, Avatars
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (`>= 3.24.0` / Dart `>= 3.5.0`)
+- Android Studio / Xcode / VS Code with Flutter extension
+- An Android/iOS device, simulator, or desktop environment
+
+### Installation
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/miteshviras/onegoal.git
 cd onegoal
 
-# 2. Get dependencies
+# 2. Install dependencies
 flutter pub get
 
-# 3. Run the app
+# 3. Run the application
 flutter run
 ```
 
 ---
 
-## 📖 Documentation & Setup Guide
+## 🧪 Quality & Testing
 
-For detailed architecture diagrams, Riverpod 3 provider documentation, local storage workflows, and the step-by-step **Laravel Backend Integration Guide**, see:
+OneGoal is committed to robust test coverage and strict lint standards:
 
-👉 **[SETUP_GUIDE.md](SETUP_GUIDE.md)**
+```bash
+# Run static analysis
+flutter analyze
+
+# Run unit and widget test suite
+flutter test
+
+# Run end-to-end integration tests
+flutter test integration_test/user_journey_test.dart
+```
 
 ---
 
-## 🧪 Testing & Verification
+## 🤝 Contributing to OneGoal
 
-```bash
-# Static analysis
-dart analyze
+OneGoal is **100% open-source** and welcomes contributions from developers, designers, and mindful productivity enthusiasts!
 
-# Widget & Unit tests
-flutter test
-```
+### How to Contribute:
+1. **Fork the repository** on GitHub.
+2. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/mindful-soundscape
+   ```
+3. **Commit your changes**:
+   ```bash
+   git commit -m "feat: add ambient focus soundscapes"
+   ```
+4. **Push to your branch**:
+   ```bash
+   git push origin feature/mindful-soundscape
+   ```
+5. **Open a Pull Request** describing your additions and rationale.
+
+Please ensure `flutter analyze` and `flutter test` pass cleanly before submitting your PR.
+
+---
+
+## 📄 License
+
+This project is open-source software licensed under the [MIT License](LICENSE).
+
+---
+
+<p align="center">
+  Built with clarity and care for focused builders worldwide. 🌿
+</p>

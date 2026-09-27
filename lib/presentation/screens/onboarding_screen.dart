@@ -253,7 +253,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   void _nextPage() {
-    if (_currentPage < 3) {
+    if (_currentPage < 4) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
@@ -375,58 +375,183 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Bar with progress indicators
+            // Top Bar with progress bar centered
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  Row(
-                    children: List.generate(4, (index) {
-                      final isActive = index <= _currentPage;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.only(right: 8),
-                        width: index == _currentPage ? 28 : 8,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? AppColors.fidelityDarkAccent
-                              : AppColors.fidelityDarkMutedText.withValues(
-                                  alpha: 0.3,
+                  SizedBox(
+                    width: 60,
+                    child: _currentPage > 0
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                minimumSize: const Size(48, 36),
+                              ),
+                              onPressed: () {
+                                _pageController.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                              child: Text(
+                                'Back',
+                                style: GoogleFonts.manrope(
+                                  color: AppColors.fidelityDarkMutedText,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      );
-                    }),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ),
-                  const Spacer(),
-                  if (_currentPage > 0)
-                    TextButton(
-                      onPressed: () {
-                        _pageController.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      child: Text(
-                        'Back',
-                        style: GoogleFonts.manrope(
-                          color: AppColors.fidelityDarkMutedText,
-                          fontSize: 14,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 280),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.fidelityDarkAccent
+                                        .withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: AppColors.fidelityDarkAccent
+                                          .withValues(alpha: 0.35),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '${((_currentPage + 1) * 20)}%',
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.fidelityDarkAccent,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'STEP ${_currentPage + 1} OF 5',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.1,
+                                    color: AppColors.fidelityDarkMutedText,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Container(
+                                height: 6,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: AppColors.fidelityDarkCard,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color:
+                                        AppColors.fidelityDarkBorder.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final targetFraction =
+                                        (_currentPage + 1) / 5.0;
+                                    return TweenAnimationBuilder<double>(
+                                      tween: Tween<double>(
+                                        begin: 0.20,
+                                        end: targetFraction,
+                                      ),
+                                      duration:
+                                          const Duration(milliseconds: 350),
+                                      curve: Curves.easeInOutCubic,
+                                      builder: (context, animatedVal, _) {
+                                        return Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Container(
+                                            width: constraints.maxWidth *
+                                                animatedVal,
+                                            height: 6,
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  AppColors.fidelityDarkAccent,
+                                                  Color(0xFF60A5FA),
+                                                ],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppColors
+                                                      .fidelityDarkAccent
+                                                      .withValues(alpha: 0.5),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 1),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  if (_currentPage < 3)
-                    TextButton(
-                      onPressed: _finishOnboarding,
-                      child: Text(
-                        'Skip',
-                        style: GoogleFonts.manrope(
-                          color: AppColors.fidelityDarkMutedText,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 60,
+                    child: _currentPage < 4
+                        ? Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                minimumSize: const Size(48, 36),
+                              ),
+                              onPressed: _finishOnboarding,
+                              child: Text(
+                                'Skip',
+                                style: GoogleFonts.manrope(
+                                  color: AppColors.fidelityDarkMutedText,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
                 ],
               ),
             ),
@@ -442,6 +567,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 children: [
                   _buildPhilosophyStep(),
                   _buildIdentityStep(),
+                  _buildRhythmStep(),
                   _buildPermissionsStep(),
                   _buildFirstMissionStep(),
                 ],
@@ -480,7 +606,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                     ),
                     child: Text(
-                      _currentPage == 3
+                      _currentPage == 4
                           ? 'Enter Focus Sanctuary ✨'
                           : 'Continue',
                       style: GoogleFonts.manrope(
@@ -652,7 +778,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Choose your avatar, rhythm, and companion coaching tone.',
+            'Choose your avatar and introduce yourself to your sanctuary.',
             style: GoogleFonts.manrope(
               fontSize: 14,
               color: AppColors.fidelityDarkMutedText,
@@ -851,62 +977,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               },
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_library_outlined, size: 18),
-                  label: Text(
-                    'Gallery',
-                    style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.darkOnSurface,
-                    backgroundColor: AppColors.darkSurfaceContainerLow,
-                    side: BorderSide(
-                      color: AppColors.darkOutlineVariant
-                          .withValues(alpha: 0.4),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                  label: Text(
-                    'Camera',
-                    style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.darkOnSurface,
-                    backgroundColor: AppColors.darkSurfaceContainerLow,
-                    side: BorderSide(
-                      color: AppColors.darkOutlineVariant
-                          .withValues(alpha: 0.4),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+
           if (!_avatarPresets.any((p) => p['url'] == _selectedAvatar) &&
               _selectedAvatar.isNotEmpty) ...[
             const SizedBox(height: 10),
@@ -1085,8 +1156,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             }).toList(),
           ),
           const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
 
-          // 4. Companion Coaching Tone
+  // SLIDE 3: Focus Rhythm & Companion Tone
+  Widget _buildRhythmStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          Text(
+            'Focus Rhythm & Coaching',
+            style: GoogleFonts.manrope(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: AppColors.fidelityDarkText,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Calibrate your coaching tone, sprint intervals, and daily cadence.',
+            style: GoogleFonts.manrope(
+              fontSize: 14,
+              color: AppColors.fidelityDarkMutedText,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // 1. Companion Coaching Tone
           Text(
             'COMPANION COACHING TONE',
             style: GoogleFonts.manrope(
@@ -1116,7 +1218,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 24),
 
-          // 5. Focus Sprint Length
+          // 2. Focus Sprint Length
           Text(
             'FOCUS SPRINT LENGTH',
             style: GoogleFonts.manrope(
@@ -1138,7 +1240,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 24),
 
-          // 6. Daily Rhythms with actual TimePicker
+          // 3. Daily Rhythms with actual TimePicker
           Text(
             'DAILY RHYTHMS',
             style: GoogleFonts.manrope(
@@ -1157,6 +1259,46 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             _pickTime(isMorning: false);
           }),
           const SizedBox(height: 20),
+
+          // Mindfulness guidance banner
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.fidelityDarkCard,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryContainer.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.tune_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    'You can fine-tune your rhythms and coaching tone anytime from your Profile settings.',
+                    style: GoogleFonts.manrope(
+                      fontSize: 12,
+                      height: 1.4,
+                      color: AppColors.fidelityDarkMutedText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -1330,7 +1472,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  // SLIDE 3: Mindful Permissions
+  // SLIDE 4: Mindful Permissions
   Widget _buildPermissionsStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1493,7 +1635,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  // SLIDE 4: First Mission Creation
+  // SLIDE 5: First Mission Creation
   Widget _buildFirstMissionStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
