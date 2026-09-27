@@ -60,7 +60,7 @@ Traditional productivity systems trap users in an anxiety loop of infinite to-do
 
 ## 📥 Download & Install APK
 
-Get the latest pre-built APK directly from GitHub Releases:
+Pre-built APKs are generated automatically using GitHub Actions CI/CD and published to GitHub Releases:
 
 <p align="center">
   <a href="https://github.com/miteshviras/onegoal/releases/latest/download/onegoal.apk">
@@ -70,7 +70,21 @@ Get the latest pre-built APK directly from GitHub Releases:
   <a href="https://github.com/miteshviras/onegoal/releases">
     <img src="https://img.shields.io/badge/All_Releases-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="All GitHub Releases" />
   </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/miteshviras/onegoal/actions/workflows/build-apk.yml">
+    <img src="https://img.shields.io/badge/CI_Artifacts-Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions CI" />
+  </a>
 </p>
+
+### Where to Find the APK:
+1. **Official Releases (Recommended):**
+   - Download the latest signed/release build: **[`onegoal.apk`](https://github.com/miteshviras/onegoal/releases/latest/download/onegoal.apk)**
+   - All versioned tags: [GitHub Releases Page](https://github.com/miteshviras/onegoal/releases)
+
+2. **GitHub Actions CI Builds:**
+   - Every push to `master` automatically triggers the **[Build & Release OneGoal APK](https://github.com/miteshviras/onegoal/actions/workflows/build-apk.yml)** workflow.
+   - Built runner path: `build/app/outputs/flutter-apk/onegoal.apk`
+   - Downloadable zip artifact: Under the run summary page at the bottom under **Artifacts** &rarr; **`onegoal-apk`**.
 
 ### How to Install:
 1. **Direct on Android Device:**
