@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 
@@ -6,7 +7,12 @@ void main() {
     late FlutterDriver driver;
 
     setUpAll(() async {
-      driver = await FlutterDriver.connect();
+      final vmServiceUrl = Platform.environment['VM_SERVICE_URL'];
+      if (vmServiceUrl != null && vmServiceUrl.isNotEmpty) {
+        driver = await FlutterDriver.connect(dartVmServiceUrl: vmServiceUrl);
+      } else {
+        driver = await FlutterDriver.connect();
+      }
     });
 
     tearDownAll(() async {
@@ -20,10 +26,11 @@ void main() {
      3. Navigate to "Timeline" tab and verify the daily rhythm view is loaded.
      4. Navigate to "Progress" tab and verify the weekly rhythm & harmony analytics view.
      5. Navigate to "Profile" tab and verify "Profile & Settings" and core mindfulness controls.
-     6. Navigate back to "Today" tab and confirm the home view is properly restored.
+     6. Open the Edit Profile modal sheet and verify profile editing controls load properly.
+     7. Return back to "Today" tab and verify the single avatar header and mission integrity.
     */
     test(
-      'User navigates across all core tabs and verifies live state integrity',
+      'Full End-to-End User Flow across Today, Goals, Timeline, Progress, and Profile',
       () async {
         // 1. Verify Today home screen
         final todayMissionFinder = find.text("Today's Mission");
@@ -53,7 +60,18 @@ void main() {
         final profileHeadingFinder = find.text('Profile & Settings');
         await driver.waitFor(profileHeadingFinder);
 
-        // 6. Return back to Today tab
+        // 6. Open Edit Profile sheet
+        final editProfileFinder = find.byTooltip('Edit Profile');
+        await driver.tap(editProfileFinder);
+
+        final editProfileTitle = find.text('Edit Profile');
+        await driver.waitFor(editProfileTitle);
+
+        // Close Edit Profile sheet with Android system back
+        await Process.run('adb', ['-s', 'emulator-5554', 'shell', 'input', 'keyevent', '4']);
+        await driver.waitFor(profileHeadingFinder);
+
+        // 7. Return back to Today tab
         final todayTabFinder = find.text('Today');
         await driver.tap(todayTabFinder);
         await driver.waitFor(todayMissionFinder);
