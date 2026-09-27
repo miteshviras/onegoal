@@ -65,7 +65,7 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
@@ -105,7 +105,7 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, py: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: _isSubmitted
                       ? AppColors.successEmerald.withValues(alpha: 0.15)
@@ -146,7 +146,7 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
           ),
           const SizedBox(height: 16),
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
               Text(
                 'What unblocked you today?',
@@ -195,7 +195,7 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
           ),
           const SizedBox(height: 14),
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Logged privately to your story',
@@ -257,13 +257,12 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
           ),
           child: Column(
             children: [
-              Text(
-                emoji,
-                style: TextStyle(
-                  fontSize: 24,
-                  transform: isSelected
-                      ? (Matrix4.identity()..scale(1.15))
-                      : Matrix4.identity(),
+              AnimatedScale(
+                scale: isSelected ? 1.15 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 24),
                 ),
               ),
               const SizedBox(height: 4),

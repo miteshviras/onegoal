@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/services/storage_service.dart';
@@ -39,7 +38,7 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepository(storage);
 });
 
-// --- Goals State Notifier ---
+// --- Goals State & Notifier (Riverpod 3 Notifier) ---
 class GoalsState {
   final List<Goal> goals;
   final bool isLoading;
@@ -62,11 +61,13 @@ class GoalsState {
   }
 }
 
-class GoalsNotifier extends StateNotifier<GoalsState> {
-  final GoalRepository _repo;
+class GoalsNotifier extends Notifier<GoalsState> {
+  GoalRepository get _repo => ref.read(goalRepositoryProvider);
 
-  GoalsNotifier(this._repo) : super(GoalsState()) {
-    loadGoals();
+  @override
+  GoalsState build() {
+    Future.microtask(loadGoals);
+    return GoalsState();
   }
 
   Future<void> loadGoals() async {
@@ -137,12 +138,9 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
 }
 
 final goalsNotifierProvider =
-    StateNotifierProvider<GoalsNotifier, GoalsState>((ref) {
-  final repo = ref.watch(goalRepositoryProvider);
-  return GoalsNotifier(repo);
-});
+    NotifierProvider<GoalsNotifier, GoalsState>(GoalsNotifier.new);
 
-// --- Tasks State Notifier ---
+// --- Tasks State & Notifier ---
 class TasksState {
   final List<TaskItem> tasks;
   final bool isLoading;
@@ -168,11 +166,13 @@ class TasksState {
   }
 }
 
-class TasksNotifier extends StateNotifier<TasksState> {
-  final TaskRepository _repo;
+class TasksNotifier extends Notifier<TasksState> {
+  TaskRepository get _repo => ref.read(taskRepositoryProvider);
 
-  TasksNotifier(this._repo) : super(TasksState()) {
-    loadTasks();
+  @override
+  TasksState build() {
+    Future.microtask(loadTasks);
+    return TasksState();
   }
 
   Future<void> loadTasks() async {
@@ -209,12 +209,9 @@ class TasksNotifier extends StateNotifier<TasksState> {
 }
 
 final tasksNotifierProvider =
-    StateNotifierProvider<TasksNotifier, TasksState>((ref) {
-  final repo = ref.watch(taskRepositoryProvider);
-  return TasksNotifier(repo);
-});
+    NotifierProvider<TasksNotifier, TasksState>(TasksNotifier.new);
 
-// --- Focus Timer Notifier ---
+// --- Focus Timer State & Notifier ---
 enum TimerStatus { initial, running, paused, completed }
 
 class FocusTimerState {
@@ -255,10 +252,16 @@ class FocusTimerState {
   }
 }
 
-class FocusTimerNotifier extends StateNotifier<FocusTimerState> {
+class FocusTimerNotifier extends Notifier<FocusTimerState> {
   Timer? _timer;
 
-  FocusTimerNotifier() : super(FocusTimerState());
+  @override
+  FocusTimerState build() {
+    ref.onDispose(() {
+      _timer?.cancel();
+    });
+    return FocusTimerState();
+  }
 
   void setTaskAndDuration(String title, int minutes) {
     _timer?.cancel();
@@ -297,29 +300,22 @@ class FocusTimerNotifier extends StateNotifier<FocusTimerState> {
       status: TimerStatus.initial,
     );
   }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
 }
 
 final focusTimerNotifierProvider =
-    StateNotifierProvider<FocusTimerNotifier, FocusTimerState>((ref) {
-  return FocusTimerNotifier();
-});
+    NotifierProvider<FocusTimerNotifier, FocusTimerState>(
+        FocusTimerNotifier.new);
 
-// --- Progress & Reflection State Notifier ---
+// --- Progress & Reflection State & Notifier ---
 class ProgressState {
   final List<QuietMilestone> milestones;
   final List<DailyReflection> reflections;
   final bool isLoading;
-  final double harmonyScore; // e.g. 0.84
-  final double missionsProgress; // 0.84
-  final double habitsProgress; // 0.85
-  final double focusHoursProgress; // 0.75
-  final double focusHours; // 14.5
+  final double harmonyScore;
+  final double missionsProgress;
+  final double habitsProgress;
+  final double focusHoursProgress;
+  final double focusHours;
 
   ProgressState({
     this.milestones = const [],
@@ -355,11 +351,13 @@ class ProgressState {
   }
 }
 
-class ProgressNotifier extends StateNotifier<ProgressState> {
-  final ProgressRepository _repo;
+class ProgressNotifier extends Notifier<ProgressState> {
+  ProgressRepository get _repo => ref.read(progressRepositoryProvider);
 
-  ProgressNotifier(this._repo) : super(ProgressState()) {
-    loadProgress();
+  @override
+  ProgressState build() {
+    Future.microtask(loadProgress);
+    return ProgressState();
   }
 
   Future<void> loadProgress() async {
@@ -381,7 +379,8 @@ class ProgressNotifier extends StateNotifier<ProgressState> {
     final now = DateTime.now();
     final reflection = DailyReflection(
       id: uuid.v4().substring(0, 8),
-      date: '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
+      date:
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
       mood: mood,
       reflectionText: note,
       completedRitual: true,
@@ -393,26 +392,22 @@ class ProgressNotifier extends StateNotifier<ProgressState> {
 }
 
 final progressNotifierProvider =
-    StateNotifierProvider<ProgressNotifier, ProgressState>((ref) {
-  final repo = ref.watch(progressRepositoryProvider);
-  return ProgressNotifier(repo);
-});
+    NotifierProvider<ProgressNotifier, ProgressState>(ProgressNotifier.new);
 
-// --- User Profile & Theme State Notifier ---
-class UserProfileNotifier extends StateNotifier<UserProfile> {
-  final UserRepository _repo;
+// --- User Profile & Theme State & Notifier ---
+class UserProfileNotifier extends Notifier<UserProfile> {
+  UserRepository get _repo => ref.read(userRepositoryProvider);
 
-  UserProfileNotifier(this._repo)
-      : super(
-          UserProfile(
-            id: 'sarah',
-            name: 'Sarah Jenkins',
-            title: 'Product Designer & Independent Builder',
-            avatarUrl:
-                'https://lh3.googleusercontent.com/aida/AEtjO1VyfNg2OaVvHBP8RL2yVF9oxMg9AdfQV0V_uaoHNRIR-Q4EThU73ZbuyayHQ0OW0KMyfiZDFA16CmJeTx9kTN3eOKF__njdZJUveEWeXz_atJHyX1uqAvK8rlQmbCMIhVBKKSxUtSJ828R3RFZD3NlDpnkvXkCa2zJjZ_6IEW5oO7eM269JiI6XqGqI2XLQZVD0Tsq8Hi028hDYsQfRmEgMomBFdUtWWYJZF0QLgLR3XCtLI5zv5TeNrs34',
-          ),
-        ) {
-    loadProfile();
+  @override
+  UserProfile build() {
+    Future.microtask(loadProfile);
+    return UserProfile(
+      id: 'sarah',
+      name: 'Sarah Jenkins',
+      title: 'Product Designer & Independent Builder',
+      avatarUrl:
+          'https://lh3.googleusercontent.com/aida/AEtjO1VyfNg2OaVvHBP8RL2yVF9oxMg9AdfQV0V_uaoHNRIR-Q4EThU73ZbuyayHQ0OW0KMyfiZDFA16CmJeTx9kTN3eOKF__njdZJUveEWeXz_atJHyX1uqAvK8rlQmbCMIhVBKKSxUtSJ828R3RFZD3NlDpnkvXkCa2zJjZ_6IEW5oO7eM269JiI6XqGqI2XLQZVD0Tsq8Hi028hDYsQfRmEgMomBFdUtWWYJZF0QLgLR3XCtLI5zv5TeNrs34',
+    );
   }
 
   Future<void> loadProfile() async {
@@ -432,8 +427,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
   }
 
   Future<void> toggleAdaptivePacing() async {
-    state =
-        state.copyWith(adaptivePacingEnabled: !state.adaptivePacingEnabled);
+    state = state.copyWith(adaptivePacingEnabled: !state.adaptivePacingEnabled);
     await _repo.saveUserProfile(state);
   }
 
@@ -469,7 +463,5 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
 }
 
 final userProfileNotifierProvider =
-    StateNotifierProvider<UserProfileNotifier, UserProfile>((ref) {
-  final repo = ref.watch(userRepositoryProvider);
-  return UserProfileNotifier(repo);
-});
+    NotifierProvider<UserProfileNotifier, UserProfile>(
+        UserProfileNotifier.new);

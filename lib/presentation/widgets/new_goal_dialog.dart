@@ -87,7 +87,7 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   '+ New Horizon',
@@ -167,7 +167,7 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
             ),
             const SizedBox(height: 14),
             Row(
-              mainAxisAlignment: MainAxisAlignment.between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildLabel('Milestones'),
                 TextButton.icon(

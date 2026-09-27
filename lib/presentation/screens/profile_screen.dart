@@ -119,7 +119,7 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  maxHeight: 180,
+                  constraints: const BoxConstraints(maxHeight: 180),
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -286,7 +286,7 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
                           child: Image.network(
                             profile.avatarUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (context, error, stackTrace) => const Icon(
                               Icons.person,
                               color: AppColors.primary,
                               size: 44,
@@ -791,7 +791,7 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
             letterSpacing: 0.6,
           ),
         ),
-        if (badge != null) badge,
+        ?badge,
       ],
     );
   }
@@ -843,7 +843,7 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
             activeTrackColor: AppColors.primaryContainer,
             inactiveTrackColor: AppColors.darkSurfaceContainerHighest,
           ),

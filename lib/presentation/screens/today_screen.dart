@@ -42,7 +42,7 @@ class TodayScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.between,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
@@ -113,7 +113,7 @@ class TodayScreen extends ConsumerWidget {
                         child: Image.network(
                           userProfile.avatarUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (context, error, stackTrace) => const Icon(
                             Icons.person,
                             color: AppColors.darkOnSurface,
                             size: 20,
@@ -135,7 +135,7 @@ class TodayScreen extends ConsumerWidget {
           children: [
             // 1. Warm Greeting
             Row(
-              mainAxisAlignment: MainAxisAlignment.between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +178,7 @@ class TodayScreen extends ConsumerWidget {
                     child: Image.network(
                       'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80',
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(
+                      errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.spa,
                         color: AppColors.primary,
                         size: 20,
@@ -212,7 +212,7 @@ class TodayScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.between,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -353,7 +353,7 @@ class TodayScreen extends ConsumerWidget {
 
             // 3. Next Actionable Step Card
             Row(
-              mainAxisAlignment: MainAxisAlignment.between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'NEXT STEP',
@@ -635,7 +635,7 @@ class TodayScreen extends ConsumerWidget {
 
             // 4. Daily Flow Section (Vertical Timeline Preview)
             Row(
-              mainAxisAlignment: MainAxisAlignment.between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Daily Flow',
@@ -669,7 +669,7 @@ class TodayScreen extends ConsumerWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: tasksState.tasks.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 14),
+                separatorBuilder: (context, index) => const SizedBox(height: 14),
                 itemBuilder: (context, index) {
                   final task = tasksState.tasks[index];
                   final isDone = task.isCompleted;
@@ -865,7 +865,7 @@ class TodayScreen extends ConsumerWidget {
                     Image.network(
                       'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (context, error, stackTrace) => Container(
                         color: AppColors.darkSurfaceContainerHigh,
                       ),
                     ),

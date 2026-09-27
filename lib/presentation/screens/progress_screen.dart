@@ -26,7 +26,7 @@ class ProgressScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.between,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
                       'Quiet Milestones (12)',
@@ -53,7 +53,7 @@ class ProgressScreen extends ConsumerWidget {
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: progress.milestones.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (context, index) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final badge = progress.milestones[index];
                       return Container(
@@ -375,7 +375,7 @@ class ProgressScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.between,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -461,7 +461,7 @@ class ProgressScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   // Evolution Bar
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.between,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         'Current Evolution',
@@ -525,7 +525,7 @@ class ProgressScreen extends ConsumerWidget {
                           Image.network(
                             'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (context, error, stackTrace) => Container(
                               color: AppColors.darkSurfaceContainerHigh,
                             ),
                           ),
@@ -548,7 +548,7 @@ class ProgressScreen extends ConsumerWidget {
                             left: 12,
                             right: 12,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.between,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(
@@ -626,7 +626,7 @@ class ProgressScreen extends ConsumerWidget {
 
             // Quiet Milestones Badges Section
             Row(
-              mainAxisAlignment: MainAxisAlignment.between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

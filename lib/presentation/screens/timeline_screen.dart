@@ -56,7 +56,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.between,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,7 +489,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                         const SizedBox(height: 12),
                                         Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.between,
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Row(
                                               children: [

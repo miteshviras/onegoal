@@ -74,7 +74,7 @@ class AppTheme {
           letterSpacing: 0.4,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.darkSurfaceContainerLow,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -89,7 +89,7 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.darkSurfaceContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -164,7 +164,7 @@ class AppTheme {
           fontWeight: FontWeight.w400,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.lightSurfaceContainerLowest,
         elevation: 0,
         shape: RoundedRectangleBorder(
