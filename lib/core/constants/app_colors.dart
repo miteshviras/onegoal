@@ -52,4 +52,21 @@ class AppColors {
   // Motivational Moments Accent Gradient
   static const Color accentPurpleStart = Color(0xFF7C3AED);
   static const Color accentIndigoEnd = Color(0xFF4F46E5);
+
+  // Design Tokens & Fidelity Aliases
+  static const Color fidelityDarkBackground = darkBackground;
+  static const Color fidelityDarkCard = darkSurfaceContainerLow;
+  static const Color fidelityDarkBorder = darkOutlineVariant;
+  static const Color fidelityDarkAccent = primary;
+  static const Color fidelityDarkText = darkOnSurface;
+  static const Color fidelityDarkMutedText = darkOnSurfaceVariant;
+  static const Color fidelityCyan = Color(0xFF38BDF8);
+  static const Color fidelityEmerald = successEmerald;
+
+  static const Color fidelityLightBackground = lightBackground;
+  static const Color fidelityLightCard = lightSurfaceContainerLowest;
+  static const Color fidelityLightBorder = lightOutlineVariant;
+  static const Color fidelityLightAccent = primaryContainer;
+  static const Color fidelityLightText = lightOnSurface;
+  static const Color fidelityLightMutedText = lightOnSurfaceVariant;
 }

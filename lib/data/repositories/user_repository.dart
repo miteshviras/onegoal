@@ -11,25 +11,17 @@ class UserRepository {
     final raw = await _storageService.getString(_storageKey);
     if (raw == null || raw.isEmpty) {
       final defaultProfile = UserProfile(
-        id: 'user_sarah',
-        name: 'Sarah Jenkins',
-        title: 'Product Designer & Independent Builder',
-        avatarUrl:
-            'https://lh3.googleusercontent.com/aida/AEtjO1VyfNg2OaVvHBP8RL2yVF9oxMg9AdfQV0V_uaoHNRIR-Q4EThU73ZbuyayHQ0OW0KMyfiZDFA16CmJeTx9kTN3eOKF__njdZJUveEWeXz_atJHyX1uqAvK8rlQmbCMIhVBKKSxUtSJ828R3RFZD3NlDpnkvXkCa2zJjZ_6IEW5oO7eM269JiI6XqGqI2XLQZVD0Tsq8Hi028hDYsQfRmEgMomBFdUtWWYJZF0QLgLR3XCtLI5zv5TeNrs34',
-        streakDays: 28,
-        level: 4,
-        levelTitle: 'Consistency Builder',
-        score: 92,
-        pointsToNextLevel: 8,
-        evolutionProgress: 0.82,
-        missionLockEnabled: true,
-        calmNotificationsEnabled: true,
-        eveningRitualTime: '8:30 PM',
-        focusTimerMinutes: 25,
-        adaptivePacingEnabled: true,
-        coachingTone: 'gentle',
-        themeMode: 'dark',
-        hapticsMode: 'soft',
+        id: 'user_default',
+        name: 'Seeker',
+        title: 'Intentional Builder',
+        avatarUrl: '',
+        streakDays: 0,
+        level: 1,
+        levelTitle: 'Mindful Beginner',
+        score: 0,
+        pointsToNextLevel: 50,
+        evolutionProgress: 0.0,
+        hasCompletedOnboarding: false,
       );
       await saveUserProfile(defaultProfile);
       return defaultProfile;
@@ -38,10 +30,11 @@ class UserRepository {
       return UserProfile.fromJson(raw);
     } catch (_) {
       return UserProfile(
-        id: 'user_sarah',
-        name: 'Sarah Jenkins',
-        title: 'Product Designer & Independent Builder',
+        id: 'user_default',
+        name: 'Seeker',
+        title: 'Intentional Builder',
         avatarUrl: '',
+        hasCompletedOnboarding: false,
       );
     }
   }

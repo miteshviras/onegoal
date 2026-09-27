@@ -402,17 +402,35 @@ class UserProfileNotifier extends Notifier<UserProfile> {
   UserProfile build() {
     Future.microtask(loadProfile);
     return UserProfile(
-      id: 'sarah',
-      name: 'Sarah Jenkins',
-      title: 'Product Designer & Independent Builder',
-      avatarUrl:
-          'https://lh3.googleusercontent.com/aida/AEtjO1VyfNg2OaVvHBP8RL2yVF9oxMg9AdfQV0V_uaoHNRIR-Q4EThU73ZbuyayHQ0OW0KMyfiZDFA16CmJeTx9kTN3eOKF__njdZJUveEWeXz_atJHyX1uqAvK8rlQmbCMIhVBKKSxUtSJ828R3RFZD3NlDpnkvXkCa2zJjZ_6IEW5oO7eM269JiI6XqGqI2XLQZVD0Tsq8Hi028hDYsQfRmEgMomBFdUtWWYJZF0QLgLR3XCtLI5zv5TeNrs34',
+      id: 'user_default',
+      name: 'Seeker',
+      title: 'Intentional Builder',
+      avatarUrl: '',
+      hasCompletedOnboarding: false,
     );
   }
 
   Future<void> loadProfile() async {
     final profile = await _repo.getUserProfile();
     state = profile;
+  }
+
+  Future<void> completeOnboarding({
+    required String name,
+    required String title,
+    required String eveningTime,
+    required int focusDuration,
+    required bool calmNotifications,
+  }) async {
+    state = state.copyWith(
+      name: name,
+      title: title,
+      eveningRitualTime: eveningTime,
+      focusTimerMinutes: focusDuration,
+      calmNotificationsEnabled: calmNotifications,
+      hasCompletedOnboarding: true,
+    );
+    await _repo.saveUserProfile(state);
   }
 
   Future<void> toggleMissionLock() async {
@@ -456,12 +474,25 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     await _repo.saveUserProfile(state);
   }
 
-  Future<void> resetAll() async {
+  Future<void> resetAllDataAndReplayOnboarding() async {
     await _repo.clearAllData();
-    await loadProfile();
+    state = UserProfile(
+      id: 'user_default',
+      name: 'Seeker',
+      title: 'Intentional Builder',
+      avatarUrl: '',
+      hasCompletedOnboarding: false,
+    );
+    await ref.read(goalsNotifierProvider.notifier).loadGoals();
+    await ref.read(tasksNotifierProvider.notifier).loadTasks();
+    await ref.read(progressNotifierProvider.notifier).loadProgress();
   }
 }
 
 final userProfileNotifierProvider =
     NotifierProvider<UserProfileNotifier, UserProfile>(
         UserProfileNotifier.new);
+
+// Aliases for backward compatibility and concise access
+final goalsProvider = goalsNotifierProvider;
+final todayTasksProvider = tasksNotifierProvider;

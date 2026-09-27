@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/providers/app_providers.dart';
 import 'presentation/screens/main_scaffold_screen.dart';
+import 'presentation/screens/onboarding_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +49,9 @@ class OneGoalApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      home: const MainScaffoldScreen(),
+      home: userProfile.hasCompletedOnboarding
+          ? const MainScaffoldScreen()
+          : const OnboardingScreen(),
     );
   }
 }

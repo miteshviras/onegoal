@@ -153,8 +153,13 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
             const SizedBox(height: 16),
 
             // Primary Goal Card
-            if (primaryGoal != null) _buildPrimaryGoalCard(primaryGoal),
-            const SizedBox(height: 16),
+            if (primaryGoal != null) ...[
+              _buildPrimaryGoalCard(primaryGoal),
+              const SizedBox(height: 16),
+            ] else if (remainingActive.isEmpty) ...[
+              _buildEmptyGoalsCard(context),
+              const SizedBox(height: 16),
+            ],
 
             // Supporting Goals
             ...remainingActive.map((goal) {
@@ -802,6 +807,74 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyGoalsCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.darkSurfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primaryContainer.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.flag_outlined,
+              color: AppColors.primary,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Your Focus Space is Open',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkOnSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'You have 3 available slots. Focus on what truly matters this quarter. Quality over quantity.',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.darkOnSurfaceVariant,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => const NewGoalDialog(),
+              );
+            },
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text('Set Your First Goal'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           ),
         ],

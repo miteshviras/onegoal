@@ -734,6 +734,18 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
                     ),
                     onTap: () => _showExportDataDialog(context, ref),
                   ),
+                  _buildDivider(),
+                  _buildNavigationTile(
+                    icon: Icons.refresh_rounded,
+                    title: 'Reset All Data & Replay Onboarding',
+                    subtitle: 'Clear all storage and test from fresh',
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: AppColors.errorMuted,
+                      size: 20,
+                    ),
+                    onTap: () => _showResetDataDialog(context, ref),
+                  ),
                 ],
               ),
             ),
@@ -950,6 +962,50 @@ ${tasks.map((t) => '- [${t.isCompleted ? 'x' : ' '}] ${t.scheduledTime} — **${
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showResetDataDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.darkSurfaceContainerLow,
+        title: Row(
+          children: const [
+            Icon(Icons.refresh_rounded, color: AppColors.errorMuted),
+            SizedBox(width: 8),
+            Text(
+              'Reset All Data?',
+              style: TextStyle(color: AppColors.darkOnSurface),
+            ),
+          ],
+        ),
+        content: const Text(
+          'This will clear all local storage, erase goals and focus sessions, and return you to the onboarding flow to test from a completely fresh state.',
+          style: TextStyle(color: AppColors.darkOnSurfaceVariant),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.errorMuted,
+            ),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await ref
+                  .read(userProfileNotifierProvider.notifier)
+                  .resetAllDataAndReplayOnboarding();
+            },
+            child: const Text(
+              'Reset & Replay',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }

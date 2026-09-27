@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 import '../widgets/focus_glyph.dart';
+import '../widgets/new_goal_dialog.dart';
+import '../widgets/new_task_dialog.dart';
 
 class TodayScreen extends ConsumerWidget {
   final VoidCallback onOpenProfile;
@@ -191,8 +193,11 @@ class TodayScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // 2. Today's Mission Hero Card
-            Container(
-              width: double.infinity,
+            if (missionGoal == null)
+              _buildEmptyMissionCard(context)
+            else
+              Container(
+                width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.darkSurfaceContainerLow,
                 borderRadius: BorderRadius.circular(16),
@@ -251,7 +256,7 @@ class TodayScreen extends ConsumerWidget {
                             const Text('🔥', style: TextStyle(fontSize: 12)),
                             const SizedBox(width: 4),
                             Text(
-                              'Day ${missionGoal?.streakDays ?? 6}',
+                              'Day ${missionGoal.streakDays}',
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -271,7 +276,7 @@ class TodayScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              missionGoal?.title ?? 'Build Portfolio Website',
+                              missionGoal.title,
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
@@ -281,8 +286,7 @@ class TodayScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              missionGoal?.description ??
-                                  'Core craft initiative • Q4 Launch',
+                              missionGoal.description,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.darkOutline,
@@ -332,9 +336,9 @@ class TodayScreen extends ConsumerWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          missionGoal?.affirmation.isNotEmpty == true
-                              ? '“${missionGoal!.affirmation}”'
-                              : '“You are becoming someone who finishes what they start.”',
+                          missionGoal.affirmation.isNotEmpty
+                              ? '“${missionGoal.affirmation}”'
+                              : '“One conscious step at a time.”',
                           style: const TextStyle(
                             fontSize: 12,
                             fontStyle: FontStyle.italic,
@@ -365,7 +369,9 @@ class TodayScreen extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  'Step ${inFocusTask?.stepNumber ?? 3} of ${inFocusTask?.totalSteps ?? 5}',
+                  inFocusTask != null
+                      ? 'Step ${inFocusTask.stepNumber} of ${inFocusTask.totalSteps}'
+                      : '${tasksState.completedCount} of ${tasksState.tasks.length} done',
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -464,7 +470,9 @@ class TodayScreen extends ConsumerWidget {
                                       children: [
                                         Text(
                                           inFocusTask?.title ??
-                                              'Deploy staging preview on Vercel',
+                                              (tasksState.tasks.isEmpty
+                                                  ? 'Add your first focus step'
+                                                  : 'All steps completed for today! 🎉'),
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700,
@@ -474,7 +482,9 @@ class TodayScreen extends ConsumerWidget {
                                         const SizedBox(height: 4),
                                         Text(
                                           inFocusTask?.subtitle ??
-                                              'Build hooks ready • DNS synced',
+                                              (tasksState.tasks.isEmpty
+                                                  ? 'Break down your goal into calm micro-steps'
+                                                  : 'Great job! Take a quiet rest or review in Evening Ritual'),
                                           style: const TextStyle(
                                             fontSize: 12,
                                             color: AppColors.darkOutline,
@@ -665,8 +675,9 @@ class TodayScreen extends ConsumerWidget {
                 ),
               ),
               padding: const EdgeInsets.all(16),
-              child: ListView.separated(
-                shrinkWrap: true,
+              child: tasksState.tasks.isNotEmpty
+                  ? ListView.separated(
+                      shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: tasksState.tasks.length,
                 separatorBuilder: (context, index) => const SizedBox(height: 14),
@@ -783,7 +794,9 @@ class TodayScreen extends ConsumerWidget {
                     ),
                   );
                 },
-              ),
+              )
+                  : _buildEmptyDailyFlowCard(
+                      context, missionGoal?.id ?? ''),
             ),
             const SizedBox(height: 16),
 
@@ -900,6 +913,114 @@ class TodayScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyMissionCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.darkSurfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+        ),
+      ),
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        children: [
+          const FocusGlyph(size: 48),
+          const SizedBox(height: 14),
+          const Text(
+            'No Mission Active Today',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkOnSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Select your primary mission from Active Goals or craft a new goal to anchor your day.',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.darkOnSurfaceVariant,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => const NewGoalDialog(),
+              );
+            },
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text('Create Goal'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyDailyFlowCard(BuildContext context, String goalId) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.schedule_outlined,
+            color: AppColors.primary,
+            size: 32,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Daily Flow is Open',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkOnSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Add 1 to 3 focus steps to guide your day without feeling overwhelmed.',
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.darkOnSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 14),
+          ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => const NewTaskDialog(),
+              );
+            },
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text('Add Focus Step'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

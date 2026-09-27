@@ -22,17 +22,20 @@ class UserProfile {
   final String themeMode; // 'dark' | 'light' | 'system'
   final String hapticsMode; // 'soft' | 'crisp' | 'off'
 
+  final bool hasCompletedOnboarding;
+
   UserProfile({
     required this.id,
     required this.name,
     required this.title,
     required this.avatarUrl,
-    this.streakDays = 28,
-    this.level = 4,
-    this.levelTitle = 'Consistency Builder',
-    this.score = 92,
-    this.pointsToNextLevel = 8,
-    this.evolutionProgress = 0.82,
+    this.streakDays = 0,
+    this.level = 1,
+    this.levelTitle = 'Mindful Beginner',
+    this.score = 0,
+    this.pointsToNextLevel = 50,
+    this.evolutionProgress = 0.0,
+    this.hasCompletedOnboarding = false,
     this.missionLockEnabled = true,
     this.calmNotificationsEnabled = true,
     this.eveningRitualTime = '8:30 PM',
@@ -54,6 +57,7 @@ class UserProfile {
     int? score,
     int? pointsToNextLevel,
     double? evolutionProgress,
+    bool? hasCompletedOnboarding,
     bool? missionLockEnabled,
     bool? calmNotificationsEnabled,
     String? eveningRitualTime,
@@ -74,6 +78,8 @@ class UserProfile {
       score: score ?? this.score,
       pointsToNextLevel: pointsToNextLevel ?? this.pointsToNextLevel,
       evolutionProgress: evolutionProgress ?? this.evolutionProgress,
+      hasCompletedOnboarding:
+          hasCompletedOnboarding ?? this.hasCompletedOnboarding,
       missionLockEnabled: missionLockEnabled ?? this.missionLockEnabled,
       calmNotificationsEnabled:
           calmNotificationsEnabled ?? this.calmNotificationsEnabled,
@@ -98,6 +104,7 @@ class UserProfile {
       'score': score,
       'points_to_next_level': pointsToNextLevel,
       'evolution_progress': evolutionProgress,
+      'has_completed_onboarding': hasCompletedOnboarding,
       'mission_lock_enabled': missionLockEnabled,
       'calm_notifications_enabled': calmNotificationsEnabled,
       'evening_ritual_time': eveningRitualTime,
@@ -111,17 +118,19 @@ class UserProfile {
 
   factory UserProfile.fromMap(Map<String, dynamic> map) {
     return UserProfile(
-      id: map['id'] as String? ?? 'user_1',
-      name: map['name'] as String? ?? 'Sarah Jenkins',
-      title: map['title'] as String? ?? 'Product Designer & Independent Builder',
+      id: map['id'] as String? ?? 'user_default',
+      name: map['name'] as String? ?? 'Seeker',
+      title: map['title'] as String? ?? 'Intentional Builder',
       avatarUrl: map['avatar_url'] as String? ?? '',
-      streakDays: map['streak_days'] as int? ?? 28,
-      level: map['level'] as int? ?? 4,
-      levelTitle: map['level_title'] as String? ?? 'Consistency Builder',
-      score: map['score'] as int? ?? 92,
-      pointsToNextLevel: map['points_to_next_level'] as int? ?? 8,
+      streakDays: map['streak_days'] as int? ?? 0,
+      level: map['level'] as int? ?? 1,
+      levelTitle: map['level_title'] as String? ?? 'Mindful Beginner',
+      score: map['score'] as int? ?? 0,
+      pointsToNextLevel: map['points_to_next_level'] as int? ?? 50,
       evolutionProgress:
-          (map['evolution_progress'] as num?)?.toDouble() ?? 0.82,
+          (map['evolution_progress'] as num?)?.toDouble() ?? 0.0,
+      hasCompletedOnboarding:
+          map['has_completed_onboarding'] as bool? ?? false,
       missionLockEnabled: map['mission_lock_enabled'] as bool? ?? true,
       calmNotificationsEnabled:
           map['calm_notifications_enabled'] as bool? ?? true,
