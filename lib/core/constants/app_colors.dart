@@ -11,7 +11,7 @@ class AppColors {
   static const Color darkSurfaceContainer = Color(0xFF1D2026);
   static const Color darkSurfaceContainerHigh = Color(0xFF272A30);
   static const Color darkSurfaceContainerHighest = Color(0xFF32353B);
-  
+
   static const Color darkOnSurface = Color(0xFFE1E2EB);
   static const Color darkOnSurfaceVariant = Color(0xFFC2C6D5);
   static const Color darkOutline = Color(0xFF8C909E);
@@ -39,7 +39,7 @@ class AppColors {
 
   static const Color secondary = Color(0xFFAEC6FF);
   static const Color secondaryContainer = Color(0xFF25457F);
-  
+
   static const Color tertiary = Color(0xFFFFB68A); // Soft Coral Amber
   static const Color tertiaryContainer = Color(0xFF9E4A00);
 
@@ -49,7 +49,7 @@ class AppColors {
   static const Color warningAmber = Color(0xFFF59E0B);
   static const Color errorMuted = Color(0xFFEF4444);
   static const Color error = errorMuted;
-  
+
   // Motivational Moments Accent Gradient
   static const Color accentPurpleStart = Color(0xFF7C3AED);
   static const Color accentIndigoEnd = Color(0xFF4F46E5);

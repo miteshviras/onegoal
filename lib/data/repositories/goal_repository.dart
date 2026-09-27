@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import '../../core/services/storage_service.dart';
 import '../models/goal.dart';
 
@@ -59,4 +60,3 @@ class GoalRepository {
     await saveGoals(current);
   }
 }
-

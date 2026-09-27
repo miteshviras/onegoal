@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 
@@ -63,7 +64,9 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
         .where((text) => text.isNotEmpty)
         .toList();
 
-    ref.read(goalsNotifierProvider.notifier).createGoal(
+    ref
+        .read(goalsNotifierProvider.notifier)
+        .createGoal(
           title: title,
           description: _descController.text.trim(),
           category: _category,
@@ -72,7 +75,10 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
               ? 'You are becoming someone who finishes what they start.'
               : _affirmationController.text.trim(),
           milestoneTitles: milestones.isEmpty
-              ? ['Define core scope & outline', 'Execute initial sprint prototype']
+              ? [
+                  'Define core scope & outline',
+                  'Execute initial sprint prototype',
+                ]
               : milestones,
         );
 
@@ -142,9 +148,13 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
                   selectedColor: AppColors.primaryContainer,
                   backgroundColor: AppColors.darkSurfaceContainerLow,
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.darkOnSurfaceVariant,
+                    color: isSelected
+                        ? Colors.white
+                        : AppColors.darkOnSurfaceVariant,
                     fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 );
               }).toList(),
@@ -184,7 +194,11 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
                 _buildLabel('Milestones'),
                 TextButton.icon(
                   onPressed: _addMilestoneField,
-                  icon: const Icon(Icons.add, size: 16, color: AppColors.primary),
+                  icon: const Icon(
+                    Icons.add,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
                   label: const Text(
                     'Add',
                     style: TextStyle(color: AppColors.primary, fontSize: 12),
@@ -206,8 +220,11 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
                     if (_milestoneControllers.length > 1) ...[
                       const SizedBox(width: 4),
                       IconButton(
-                        icon: const Icon(Icons.remove_circle_outline,
-                            color: AppColors.darkOutline, size: 20),
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                          color: AppColors.darkOutline,
+                          size: 20,
+                        ),
                         onPressed: () {
                           setState(() {
                             final c = _milestoneControllers.removeAt(entry.key);
@@ -281,13 +298,21 @@ class _NewGoalDialogState extends ConsumerState<NewGoalDialog> {
           child: TextField(
             controller: controller,
             onChanged: onChanged,
-            style: const TextStyle(fontSize: 14, color: AppColors.darkOnSurface),
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.darkOnSurface,
+            ),
             decoration: InputDecoration(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
               border: InputBorder.none,
               hintText: hint,
-              hintStyle: const TextStyle(fontSize: 13, color: AppColors.darkOutline),
+              hintStyle: const TextStyle(
+                fontSize: 13,
+                color: AppColors.darkOutline,
+              ),
             ),
           ),
         ),

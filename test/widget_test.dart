@@ -5,12 +5,10 @@ import 'package:onegoal/main.dart';
 import 'package:onegoal/presentation/screens/main_scaffold_screen.dart';
 
 void main() {
-  testWidgets('OneGoalApp boots up fresh and renders OnboardingScreen', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: OneGoalApp(),
-      ),
-    );
+  testWidgets('OneGoalApp boots up fresh and renders OnboardingScreen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const ProviderScope(child: OneGoalApp()));
 
     await tester.pumpAndSettle();
 
@@ -20,13 +18,11 @@ void main() {
     expect(find.text('Continue'), findsOneWidget);
   });
 
-  testWidgets('MainScaffoldScreen renders main 5-tab focus layout', (WidgetTester tester) async {
+  testWidgets('MainScaffoldScreen renders main 5-tab focus layout', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          home: MainScaffoldScreen(),
-        ),
-      ),
+      const ProviderScope(child: MaterialApp(home: MainScaffoldScreen())),
     );
 
     await tester.pumpAndSettle();

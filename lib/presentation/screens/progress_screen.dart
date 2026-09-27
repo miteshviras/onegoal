@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 import '../widgets/evening_ritual_card.dart';
@@ -17,8 +18,9 @@ class ProgressScreen extends ConsumerWidget {
       builder: (context) {
         return Dialog(
           backgroundColor: AppColors.darkSurfaceContainer,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -37,8 +39,10 @@ class ProgressScreen extends ConsumerWidget {
                       ),
                     ),
                     IconButton(
-                      icon:
-                          const Icon(Icons.close, color: AppColors.darkOutline),
+                      icon: const Icon(
+                        Icons.close,
+                        color: AppColors.darkOutline,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -53,7 +57,8 @@ class ProgressScreen extends ConsumerWidget {
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: progress.milestones.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 10),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final badge = progress.milestones[index];
                       return Container(
@@ -64,8 +69,9 @@ class ProgressScreen extends ConsumerWidget {
                           border: Border.all(
                             color: badge.isUnlocked
                                 ? AppColors.primary.withValues(alpha: 0.3)
-                                : AppColors.darkOutlineVariant
-                                    .withValues(alpha: 0.2),
+                                : AppColors.darkOutlineVariant.withValues(
+                                    alpha: 0.2,
+                                  ),
                           ),
                         ),
                         child: Row(
@@ -75,8 +81,9 @@ class ProgressScreen extends ConsumerWidget {
                               height: 36,
                               decoration: BoxDecoration(
                                 color: badge.isUnlocked
-                                    ? AppColors.primaryContainer
-                                        .withValues(alpha: 0.4)
+                                    ? AppColors.primaryContainer.withValues(
+                                        alpha: 0.4,
+                                      )
                                     : AppColors.darkSurfaceContainerHigh,
                                 shape: BoxShape.circle,
                               ),
@@ -113,11 +120,14 @@ class ProgressScreen extends ConsumerWidget {
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: badge.isUnlocked
-                                    ? AppColors.successEmerald
-                                        .withValues(alpha: 0.15)
+                                    ? AppColors.successEmerald.withValues(
+                                        alpha: 0.15,
+                                      )
                                     : AppColors.darkSurfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -194,8 +204,9 @@ class ProgressScreen extends ConsumerWidget {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.successEmerald.withValues(alpha: 0.15),
+                          color: AppColors.successEmerald.withValues(
+                            alpha: 0.15,
+                          ),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -279,7 +290,8 @@ class ProgressScreen extends ConsumerWidget {
                         missionsProgress: progress.missionsProgress,
                         habitsProgress: progress.habitsProgress,
                         focusHoursProgress: progress.focusHoursProgress,
-                        harmonyPercentage: (progress.harmonyScore * 100).toInt(),
+                        harmonyPercentage: (progress.harmonyScore * 100)
+                            .toInt(),
                         size: 140,
                       ),
                       const SizedBox(width: 18),
@@ -383,7 +395,9 @@ class ProgressScreen extends ConsumerWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.darkSurfaceContainerLowest
                               .withValues(alpha: 0.4),
@@ -413,7 +427,9 @@ class ProgressScreen extends ConsumerWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.darkSurfaceContainerLowest
                               .withValues(alpha: 0.4),
@@ -457,10 +473,7 @@ class ProgressScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   const Text(
                     'Daily identity reinforcement • 18 days conscious momentum',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AppColors.secondary,
-                    ),
+                    style: TextStyle(fontSize: 11, color: AppColors.secondary),
                   ),
                   const SizedBox(height: 12),
                   // Evolution Bar
@@ -517,21 +530,24 @@ class ProgressScreen extends ConsumerWidget {
                     height: 110,
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                     ),
                     child: ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
                           Image.network(
                             'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: AppColors.darkSurfaceContainerHigh,
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  color: AppColors.darkSurfaceContainerHigh,
+                                ),
                           ),
                           Container(
                             decoration: BoxDecoration(
@@ -540,8 +556,9 @@ class ProgressScreen extends ConsumerWidget {
                                 end: Alignment.topCenter,
                                 colors: [
                                   AppColors.darkSurfaceContainerLow,
-                                  AppColors.darkSurfaceContainerLow
-                                      .withValues(alpha: 0.3),
+                                  AppColors.darkSurfaceContainerLow.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   Colors.transparent,
                                 ],
                               ),
@@ -556,7 +573,9 @@ class ProgressScreen extends ConsumerWidget {
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 3),
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.darkSurfaceContainerHighest
                                         .withValues(alpha: 0.9),
@@ -573,7 +592,9 @@ class ProgressScreen extends ConsumerWidget {
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 3),
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.darkSurfaceContainerHighest
                                         .withValues(alpha: 0.6),
@@ -676,8 +697,9 @@ class ProgressScreen extends ConsumerWidget {
                       color: AppColors.darkSurfaceContainerLow,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color:
-                            AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+                        color: AppColors.darkOutlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
                       ),
                     ),
                     child: Column(
@@ -687,13 +709,16 @@ class ProgressScreen extends ConsumerWidget {
                           height: 40,
                           decoration: BoxDecoration(
                             color: badge.iconKey == 'eco'
-                                ? AppColors.successEmerald
-                                    .withValues(alpha: 0.2)
+                                ? AppColors.successEmerald.withValues(
+                                    alpha: 0.2,
+                                  )
                                 : (badge.iconKey == 'done_all'
-                                    ? AppColors.tertiaryContainer
-                                        .withValues(alpha: 0.3)
-                                    : AppColors.primaryContainer
-                                        .withValues(alpha: 0.4)),
+                                      ? AppColors.tertiaryContainer.withValues(
+                                          alpha: 0.3,
+                                        )
+                                      : AppColors.primaryContainer.withValues(
+                                          alpha: 0.4,
+                                        )),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -701,8 +726,8 @@ class ProgressScreen extends ConsumerWidget {
                             color: badge.iconKey == 'eco'
                                 ? AppColors.successEmerald
                                 : (badge.iconKey == 'done_all'
-                                    ? AppColors.tertiary
-                                    : AppColors.primary),
+                                      ? AppColors.tertiary
+                                      : AppColors.primary),
                             size: 20,
                           ),
                         ),
@@ -730,11 +755,14 @@ class ProgressScreen extends ConsumerWidget {
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: badge.iconKey == 'eco'
-                                ? AppColors.successEmerald
-                                    .withValues(alpha: 0.15)
+                                ? AppColors.successEmerald.withValues(
+                                    alpha: 0.15,
+                                  )
                                 : AppColors.darkSurfaceContainerHighest,
                             borderRadius: BorderRadius.circular(6),
                           ),
@@ -781,10 +809,7 @@ class ProgressScreen extends ConsumerWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
               Column(
@@ -836,10 +861,7 @@ class ProgressScreen extends ConsumerWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.darkOutline,
-            ),
+            style: const TextStyle(fontSize: 11, color: AppColors.darkOutline),
           ),
           const SizedBox(height: 2),
           Text(

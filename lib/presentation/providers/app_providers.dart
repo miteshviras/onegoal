@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -47,7 +48,9 @@ class GoalsState {
   GoalsState({this.goals = const [], this.isLoading = true});
 
   Goal? get todayMission {
-    final list = goals.where((g) => g.isTodayMission && !g.isCompleted).toList();
+    final list = goals
+        .where((g) => g.isTodayMission && !g.isCompleted)
+        .toList();
     if (list.isNotEmpty) return list.first;
     return null;
   }
@@ -105,8 +108,7 @@ class GoalsNotifier extends Notifier<GoalsState> {
     final currentGoals = [...state.goals];
     final gIdx = currentGoals.indexWhere((g) => g.id == goalId);
     if (gIdx == -1) return;
-    final allMilestonesCompleted = currentGoals[gIdx]
-        .milestones
+    final allMilestonesCompleted = currentGoals[gIdx].milestones
         .map((m) => m.copyWith(isCompleted: true))
         .toList();
     final updated = currentGoals[gIdx].copyWith(
@@ -165,8 +167,7 @@ class GoalsNotifier extends Notifier<GoalsState> {
       category: category,
       dueInDays: dueInDays,
       affirmation: affirmation,
-      imageUrl: imageUrl ??
-          'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
+      imageUrl: imageUrl ?? 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
       milestones: milestoneTitles
           .map((m) => GoalMilestone(id: uuid.v4().substring(0, 8), title: m))
           .toList(),
@@ -176,8 +177,9 @@ class GoalsNotifier extends Notifier<GoalsState> {
   }
 }
 
-final goalsNotifierProvider =
-    NotifierProvider<GoalsNotifier, GoalsState>(GoalsNotifier.new);
+final goalsNotifierProvider = NotifierProvider<GoalsNotifier, GoalsState>(
+  GoalsNotifier.new,
+);
 
 // --- Tasks State & Notifier ---
 class TasksState {
@@ -187,7 +189,9 @@ class TasksState {
   TasksState({this.tasks = const [], this.isLoading = true});
 
   TaskItem? get inFocusTask {
-    final active = tasks.where((t) => t.isCurrentFocus && !t.isCompleted).toList();
+    final active = tasks
+        .where((t) => t.isCurrentFocus && !t.isCompleted)
+        .toList();
     if (active.isNotEmpty) return active.first;
     final remaining = tasks.where((t) => !t.isCompleted).toList();
     return remaining.isNotEmpty ? remaining.first : null;
@@ -271,9 +275,9 @@ class TasksNotifier extends Notifier<TasksState> {
   }
 }
 
-
-final tasksNotifierProvider =
-    NotifierProvider<TasksNotifier, TasksState>(TasksNotifier.new);
+final tasksNotifierProvider = NotifierProvider<TasksNotifier, TasksState>(
+  TasksNotifier.new,
+);
 
 // --- Focus Timer State & Notifier ---
 enum TimerStatus { initial, running, paused, completed }
@@ -303,9 +307,8 @@ class FocusTimerState {
     return '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  double get progress => totalSeconds > 0
-      ? (totalSeconds - remainingSeconds) / totalSeconds
-      : 0.0;
+  double get progress =>
+      totalSeconds > 0 ? (totalSeconds - remainingSeconds) / totalSeconds : 0.0;
 
   FocusTimerState copyWith({
     int? totalSeconds,
@@ -339,7 +342,9 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
         pause();
         final currentInFocus = ref.read(tasksNotifierProvider).inFocusTask;
         if (currentInFocus != null) {
-          ref.read(tasksNotifierProvider.notifier).toggleTask(currentInFocus.id);
+          ref
+              .read(tasksNotifierProvider.notifier)
+              .toggleTask(currentInFocus.id);
         }
       }
     };
@@ -420,7 +425,8 @@ class FocusTimerNotifier extends Notifier<FocusTimerState> {
 
 final focusTimerNotifierProvider =
     NotifierProvider<FocusTimerNotifier, FocusTimerState>(
-        FocusTimerNotifier.new);
+      FocusTimerNotifier.new,
+    );
 
 // --- Progress & Reflection State & Notifier ---
 class ProgressState {
@@ -492,8 +498,10 @@ class ProgressNotifier extends Notifier<ProgressState> {
     final focusHours = totalFocusMinutes > 0 ? (totalFocusMinutes / 60.0) : 0.0;
 
     // Calculate Missions progress
-    final totalMilestones =
-        goals.fold<int>(0, (sum, g) => sum + g.milestones.length);
+    final totalMilestones = goals.fold<int>(
+      0,
+      (sum, g) => sum + g.milestones.length,
+    );
     final completedMilestones = goals.fold<int>(
       0,
       (sum, g) => sum + g.milestones.where((m) => m.isCompleted).length,
@@ -501,8 +509,8 @@ class ProgressNotifier extends Notifier<ProgressState> {
     final double missionsProgress = totalMilestones > 0
         ? (completedMilestones / totalMilestones)
         : (goals.isNotEmpty
-            ? (goals.where((g) => g.isCompleted).length / goals.length)
-            : 0.5);
+              ? (goals.where((g) => g.isCompleted).length / goals.length)
+              : 0.5);
 
     // Calculate Habits progress
     final double habitsProgress = tasks.isNotEmpty
@@ -510,15 +518,15 @@ class ProgressNotifier extends Notifier<ProgressState> {
         : 0.5;
 
     // Focus hours progress (goal is 20 hours)
-    final double focusHoursProgress =
-        (focusHours / 20.0).clamp(0.0, 1.0);
+    final double focusHoursProgress = (focusHours / 20.0).clamp(0.0, 1.0);
 
     // Harmony Score
-    final double harmonyScore = ((missionsProgress +
-                habitsProgress +
-                (focusHours > 0 ? focusHoursProgress : 0.5)) /
-            3.0)
-        .clamp(0.0, 1.0);
+    final double harmonyScore =
+        ((missionsProgress +
+                    habitsProgress +
+                    (focusHours > 0 ? focusHoursProgress : 0.5)) /
+                3.0)
+            .clamp(0.0, 1.0);
 
     // Automatic Milestone Unlocking
     bool milestonesUpdated = false;
@@ -563,7 +571,6 @@ class ProgressNotifier extends Notifier<ProgressState> {
       harmonyScore: harmonyScore,
     );
   }
-
 
   Future<void> submitReflection({
     required String mood,
@@ -631,6 +638,25 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     await _repo.saveUserProfile(state);
   }
 
+  Future<void> updateProfile({
+    String? name,
+    String? title,
+    String? avatarUrl,
+    String? coachingTone,
+    String? eveningRitualTime,
+    int? focusTimerMinutes,
+  }) async {
+    state = state.copyWith(
+      name: name ?? state.name,
+      title: title ?? state.title,
+      avatarUrl: avatarUrl ?? state.avatarUrl,
+      coachingTone: coachingTone ?? state.coachingTone,
+      eveningRitualTime: eveningRitualTime ?? state.eveningRitualTime,
+      focusTimerMinutes: focusTimerMinutes ?? state.focusTimerMinutes,
+    );
+    await _repo.saveUserProfile(state);
+  }
+
   Future<void> toggleMissionLock() async {
     state = state.copyWith(missionLockEnabled: !state.missionLockEnabled);
     await _repo.saveUserProfile(state);
@@ -638,7 +664,8 @@ class UserProfileNotifier extends Notifier<UserProfile> {
 
   Future<void> toggleCalmNotifications() async {
     state = state.copyWith(
-        calmNotificationsEnabled: !state.calmNotificationsEnabled);
+      calmNotificationsEnabled: !state.calmNotificationsEnabled,
+    );
     await _repo.saveUserProfile(state);
   }
 
@@ -651,7 +678,6 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     state = state.copyWith(coachingTone: tone);
     await _repo.saveUserProfile(state);
   }
-
 
   Future<void> setFocusDuration(int minutes) async {
     state = state.copyWith(focusTimerMinutes: minutes);
@@ -684,8 +710,7 @@ class UserProfileNotifier extends Notifier<UserProfile> {
 }
 
 final userProfileNotifierProvider =
-    NotifierProvider<UserProfileNotifier, UserProfile>(
-        UserProfileNotifier.new);
+    NotifierProvider<UserProfileNotifier, UserProfile>(UserProfileNotifier.new);
 
 // Aliases for backward compatibility and concise access
 final goalsProvider = goalsNotifierProvider;

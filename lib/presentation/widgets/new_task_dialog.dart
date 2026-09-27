@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 
@@ -166,7 +167,9 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
       return;
     }
 
-    ref.read(tasksNotifierProvider.notifier).addTask(
+    ref
+        .read(tasksNotifierProvider.notifier)
+        .addTask(
           title: title,
           subtitle: _subtitleController.text.trim(),
           scheduledTime: _formatTimeOfDay(_selectedTime),
@@ -254,12 +257,17 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
                 onTap: _pickTime,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.darkSurfaceContainerLow,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+                      color: AppColors.darkOutlineVariant.withValues(
+                        alpha: 0.3,
+                      ),
                     ),
                   ),
                   child: Row(
@@ -312,7 +320,10 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primaryContainer.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(8),
@@ -348,20 +359,26 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
                       backgroundColor: AppColors.darkSurfaceContainerLow,
                       labelStyle: TextStyle(
                         fontSize: 12,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? Colors.white : AppColors.darkOnSurface,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.darkOnSurface,
                       ),
                       side: BorderSide(
                         color: isSelected
                             ? AppColors.primary
-                            : AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+                            : AppColors.darkOutlineVariant.withValues(
+                                alpha: 0.3,
+                              ),
                       ),
                     );
                   }),
                   ChoiceChip(
                     label: const Text('Custom min'),
-                    selected: _isCustomMode || !_presetDurations.contains(_duration),
+                    selected:
+                        _isCustomMode || !_presetDurations.contains(_duration),
                     onSelected: (_) {
                       HapticFeedback.selectionClick();
                       setState(() {
@@ -374,15 +391,20 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
                     labelStyle: TextStyle(
                       fontSize: 12,
                       fontWeight:
-                          (_isCustomMode || !_presetDurations.contains(_duration))
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                      color: (_isCustomMode || !_presetDurations.contains(_duration))
+                          (_isCustomMode ||
+                              !_presetDurations.contains(_duration))
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color:
+                          (_isCustomMode ||
+                              !_presetDurations.contains(_duration))
                           ? Colors.white
                           : AppColors.darkOnSurface,
                     ),
                     side: BorderSide(
-                      color: (_isCustomMode || !_presetDurations.contains(_duration))
+                      color:
+                          (_isCustomMode ||
+                              !_presetDurations.contains(_duration))
                           ? AppColors.primary
                           : AppColors.darkOutlineVariant.withValues(alpha: 0.3),
                     ),
@@ -430,20 +452,34 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
                                   fontSize: 13,
                                 ),
                                 hintText: '1 - 240',
-                                hintStyle: TextStyle(color: AppColors.darkOutline),
+                                hintStyle: TextStyle(
+                                  color: AppColors.darkOutline,
+                                ),
                                 border: InputBorder.none,
                               ),
                               onChanged: _onCustomInputChanged,
                             ),
                           ),
                           // Quick Stepper Buttons
-                          _buildStepButton('-15', () => _updateCustomDuration(_duration - 15)),
+                          _buildStepButton(
+                            '-15',
+                            () => _updateCustomDuration(_duration - 15),
+                          ),
                           const SizedBox(width: 4),
-                          _buildStepButton('-5', () => _updateCustomDuration(_duration - 5)),
+                          _buildStepButton(
+                            '-5',
+                            () => _updateCustomDuration(_duration - 5),
+                          ),
                           const SizedBox(width: 4),
-                          _buildStepButton('+5', () => _updateCustomDuration(_duration + 5)),
+                          _buildStepButton(
+                            '+5',
+                            () => _updateCustomDuration(_duration + 5),
+                          ),
                           const SizedBox(width: 4),
-                          _buildStepButton('+15', () => _updateCustomDuration(_duration + 15)),
+                          _buildStepButton(
+                            '+15',
+                            () => _updateCustomDuration(_duration + 15),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -451,13 +487,16 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: AppColors.primary,
-                          inactiveTrackColor: AppColors.darkSurfaceContainerHigh,
+                          inactiveTrackColor:
+                              AppColors.darkSurfaceContainerHigh,
                           thumbColor: AppColors.primary,
                           trackHeight: 3,
-                          thumbShape:
-                              const RoundSliderThumbShape(enabledThumbRadius: 6),
-                          overlayShape:
-                              const RoundSliderOverlayShape(overlayRadius: 14),
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 6,
+                          ),
+                          overlayShape: const RoundSliderOverlayShape(
+                            overlayRadius: 14,
+                          ),
                         ),
                         child: Slider(
                           value: _duration.clamp(5, 240).toDouble(),
@@ -583,11 +622,16 @@ class _NewTaskDialogState extends ConsumerState<NewTaskDialog> {
         controller: controller,
         style: const TextStyle(fontSize: 14, color: AppColors.darkOnSurface),
         decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
           border: InputBorder.none,
           hintText: hint,
-          hintStyle: const TextStyle(fontSize: 13, color: AppColors.darkOutline),
+          hintStyle: const TextStyle(
+            fontSize: 13,
+            color: AppColors.darkOutline,
+          ),
         ),
       ),
     );

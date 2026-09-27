@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 
@@ -24,7 +25,9 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
 
   void _submit() {
     HapticFeedback.mediumImpact();
-    ref.read(progressNotifierProvider.notifier).submitReflection(
+    ref
+        .read(progressNotifierProvider.notifier)
+        .submitReflection(
           mood: _selectedMood,
           note: _noteController.text.trim(),
         );
@@ -88,7 +91,8 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
                     children: [
                       Text(
                         'Evening Check-in',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: AppColors.darkOnSurface,
                             ),
@@ -105,7 +109,10 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: _isSubmitted
                       ? AppColors.successEmerald.withValues(alpha: 0.15)
@@ -161,10 +168,7 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
               SizedBox(width: 8),
               Text(
                 'Optional',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.darkOutline,
-                ),
+                style: TextStyle(fontSize: 12, color: AppColors.darkOutline),
               ),
             ],
           ),
@@ -187,8 +191,7 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(12),
                 border: InputBorder.none,
-                hintText:
-                    'e.g., Turning off instant notifications for two 45-minute sprint blocks...',
+                hintText: 'e.g., Turning off instant notifications for two 45-minute sprint blocks...',
                 hintStyle: TextStyle(
                   fontSize: 13,
                   color: AppColors.darkOutline,
@@ -220,8 +223,10 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                 ),
                 child: Text(
                   _isSubmitted ? 'Ritual Done' : 'Complete Ritual',
@@ -268,10 +273,7 @@ class _EveningRitualCardState extends ConsumerState<EveningRitualCard> {
               AnimatedScale(
                 scale: isSelected ? 1.15 : 1.0,
                 duration: const Duration(milliseconds: 200),
-                child: Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 24),
-                ),
+                child: Text(emoji, style: const TextStyle(fontSize: 24)),
               ),
               const SizedBox(height: 4),
               Text(

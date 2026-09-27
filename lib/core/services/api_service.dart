@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
 import '../../data/models/goal.dart';
 import '../../data/models/task_item.dart';
 import '../../data/models/daily_reflection.dart';
@@ -36,10 +38,10 @@ class LaravelApiClient implements IApiService {
   }) : client = client ?? http.Client();
 
   Map<String, String> get _headers => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        if (authToken != null) 'Authorization': 'Bearer $authToken',
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    if (authToken != null) 'Authorization': 'Bearer $authToken',
+  };
 
   @override
   Future<List<Goal>> getGoals() async {
@@ -51,7 +53,9 @@ class LaravelApiClient implements IApiService {
       final List<dynamic> data = json.decode(response.body)['data'];
       return data.map((json) => Goal.fromMap(json)).toList();
     }
-    throw Exception('Failed to fetch goals from Laravel API: ${response.statusCode}');
+    throw Exception(
+      'Failed to fetch goals from Laravel API: ${response.statusCode}',
+    );
   }
 
   @override

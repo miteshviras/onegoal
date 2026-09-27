@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import '../../core/services/storage_service.dart';
 import '../models/task_item.dart';
 
@@ -15,7 +16,9 @@ class TaskRepository {
     }
     try {
       final List<dynamic> list = json.decode(raw);
-      return list.map((e) => TaskItem.fromMap(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => TaskItem.fromMap(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -62,11 +65,8 @@ class TaskRepository {
   Future<void> setFocusTask(String taskId) async {
     final tasks = await getTasks();
     for (int i = 0; i < tasks.length; i++) {
-      tasks[i] = tasks[i].copyWith(
-        isCurrentFocus: tasks[i].id == taskId,
-      );
+      tasks[i] = tasks[i].copyWith(isCurrentFocus: tasks[i].id == taskId);
     }
     await saveTasks(tasks);
   }
 }
-

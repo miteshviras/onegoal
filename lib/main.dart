@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'core/theme/app_theme.dart';
 import 'presentation/providers/app_providers.dart';
 import 'presentation/screens/main_scaffold_screen.dart';
@@ -15,11 +16,7 @@ void main() {
       systemNavigationBarColor: Colors.transparent,
     ),
   );
-  runApp(
-    const ProviderScope(
-      child: OneGoalApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: OneGoalApp()));
 }
 
 class OneGoalApp extends ConsumerWidget {

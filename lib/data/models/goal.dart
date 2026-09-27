@@ -144,7 +144,8 @@ class Goal {
       streakDays: map['streak_days'] as int? ?? 0,
       affirmation: map['affirmation'] as String? ?? '',
       imageUrl: map['image_url'] as String?,
-      milestones: (map['milestones'] as List<dynamic>?)
+      milestones:
+          (map['milestones'] as List<dynamic>?)
               ?.map((x) => GoalMilestone.fromMap(x as Map<String, dynamic>))
               .toList() ??
           [],

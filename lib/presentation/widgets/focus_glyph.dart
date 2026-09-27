@@ -1,5 +1,7 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+
 import '../../core/constants/app_colors.dart';
 
 /// The iconic Goal Planner Focus Glyph from Google Stitch designs.
@@ -20,9 +22,7 @@ class FocusGlyph extends StatelessWidget {
           color: AppColors.darkOutlineVariant.withValues(alpha: 0.4),
         ),
       ),
-      child: CustomPaint(
-        painter: _FocusGlyphPainter(),
-      ),
+      child: CustomPaint(painter: _FocusGlyphPainter()),
     );
   }
 }

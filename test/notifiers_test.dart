@@ -27,9 +27,7 @@ void main() {
   setUp(() {
     storage = InMemoryStorageService();
     container = ProviderContainer(
-      overrides: [
-        storageServiceProvider.overrideWithValue(storage),
-      ],
+      overrides: [storageServiceProvider.overrideWithValue(storage)],
     );
   });
 
@@ -68,7 +66,10 @@ void main() {
 
       // Set as today's mission
       await notifier.setTodayMission(goal.id);
-      expect(container.read(goalsNotifierProvider).todayMission?.id, equals(goal.id));
+      expect(
+        container.read(goalsNotifierProvider).todayMission?.id,
+        equals(goal.id),
+      );
 
       // Complete goal
       await notifier.completeGoal(goal.id);
@@ -117,7 +118,10 @@ void main() {
       await notifier.toggleTask(firstTaskId);
       state = container.read(tasksNotifierProvider);
       expect(state.completedCount, equals(1));
-      expect(state.tasks.firstWhere((t) => t.id == firstTaskId).isCompleted, isTrue);
+      expect(
+        state.tasks.firstWhere((t) => t.id == firstTaskId).isCompleted,
+        isTrue,
+      );
 
       // Delete second task
       await notifier.deleteTask(secondTaskId);
@@ -158,21 +162,61 @@ void main() {
       await Future.delayed(Duration.zero);
       await notifier.loadProfile();
 
-      final initialLock = container.read(userProfileNotifierProvider).missionLockEnabled;
+      final initialLock = container
+          .read(userProfileNotifierProvider)
+          .missionLockEnabled;
       await notifier.toggleMissionLock();
-      expect(container.read(userProfileNotifierProvider).missionLockEnabled, equals(!initialLock));
+      expect(
+        container.read(userProfileNotifierProvider).missionLockEnabled,
+        equals(!initialLock),
+      );
 
       await notifier.toggleCalmNotifications();
-      expect(container.read(userProfileNotifierProvider).calmNotificationsEnabled, isFalse);
+      expect(
+        container.read(userProfileNotifierProvider).calmNotificationsEnabled,
+        isFalse,
+      );
 
       await notifier.setFocusDuration(45);
-      expect(container.read(userProfileNotifierProvider).focusTimerMinutes, equals(45));
+      expect(
+        container.read(userProfileNotifierProvider).focusTimerMinutes,
+        equals(45),
+      );
 
       await notifier.setEveningRitualTime('9:30 PM');
-      expect(container.read(userProfileNotifierProvider).eveningRitualTime, equals('9:30 PM'));
+      expect(
+        container.read(userProfileNotifierProvider).eveningRitualTime,
+        equals('9:30 PM'),
+      );
 
       await notifier.setCoachingTone('concise');
-      expect(container.read(userProfileNotifierProvider).coachingTone, equals('concise'));
+      expect(
+        container.read(userProfileNotifierProvider).coachingTone,
+        equals('concise'),
+      );
+    });
+
+    test('updateProfile updates all fields and persists profile', () async {
+      final notifier = container.read(userProfileNotifierProvider.notifier);
+      await Future.delayed(Duration.zero);
+      await notifier.loadProfile();
+
+      await notifier.updateProfile(
+        name: 'Alex Sterling',
+        title: 'Lead Architect',
+        avatarUrl: 'assets/images/app_logo.png',
+        coachingTone: 'concise',
+        eveningRitualTime: '10:00 PM',
+        focusTimerMinutes: 50,
+      );
+
+      final state = container.read(userProfileNotifierProvider);
+      expect(state.name, equals('Alex Sterling'));
+      expect(state.title, equals('Lead Architect'));
+      expect(state.avatarUrl, equals('assets/images/app_logo.png'));
+      expect(state.coachingTone, equals('concise'));
+      expect(state.eveningRitualTime, equals('10:00 PM'));
+      expect(state.focusTimerMinutes, equals(50));
     });
   });
 
@@ -189,7 +233,9 @@ void main() {
       final taskId = container.read(tasksNotifierProvider).tasks.first.id;
       await tasksNotifier.toggleTask(taskId);
 
-      final progressNotifier = container.read(progressNotifierProvider.notifier);
+      final progressNotifier = container.read(
+        progressNotifierProvider.notifier,
+      );
       await progressNotifier.loadProgress();
 
       final state = container.read(progressNotifierProvider);

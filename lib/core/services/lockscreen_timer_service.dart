@@ -1,11 +1,13 @@
 import 'dart:io';
+
 import 'package:flutter/services.dart';
 
 typedef LockscreenActionCallback = void Function(String action);
 
 class LockscreenTimerService {
-  static const MethodChannel _channel =
-      MethodChannel('com.onegoal.onegoal/focus_timer');
+  static const MethodChannel _channel = MethodChannel(
+    'com.onegoal.onegoal/focus_timer',
+  );
 
   static final LockscreenTimerService _instance =
       LockscreenTimerService._internal();
@@ -131,9 +133,7 @@ class LockscreenTimerService {
         };
       }).toList();
 
-      await _channel.invokeMethod('syncDailyTasks', {
-        'tasks': taskMaps,
-      });
+      await _channel.invokeMethod('syncDailyTasks', {'tasks': taskMaps});
     } catch (_) {}
   }
 }

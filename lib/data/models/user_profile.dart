@@ -11,7 +11,7 @@ class UserProfile {
   final int score;
   final int pointsToNextLevel;
   final double evolutionProgress;
-  
+
   // Settings
   final bool missionLockEnabled;
   final bool calmNotificationsEnabled;
@@ -85,7 +85,8 @@ class UserProfile {
           calmNotificationsEnabled ?? this.calmNotificationsEnabled,
       eveningRitualTime: eveningRitualTime ?? this.eveningRitualTime,
       focusTimerMinutes: focusTimerMinutes ?? this.focusTimerMinutes,
-      adaptivePacingEnabled: adaptivePacingEnabled ?? this.adaptivePacingEnabled,
+      adaptivePacingEnabled:
+          adaptivePacingEnabled ?? this.adaptivePacingEnabled,
       coachingTone: coachingTone ?? this.coachingTone,
       themeMode: themeMode ?? this.themeMode,
       hapticsMode: hapticsMode ?? this.hapticsMode,
@@ -127,10 +128,8 @@ class UserProfile {
       levelTitle: map['level_title'] as String? ?? 'Mindful Beginner',
       score: map['score'] as int? ?? 0,
       pointsToNextLevel: map['points_to_next_level'] as int? ?? 50,
-      evolutionProgress:
-          (map['evolution_progress'] as num?)?.toDouble() ?? 0.0,
-      hasCompletedOnboarding:
-          map['has_completed_onboarding'] as bool? ?? false,
+      evolutionProgress: (map['evolution_progress'] as num?)?.toDouble() ?? 0.0,
+      hasCompletedOnboarding: map['has_completed_onboarding'] as bool? ?? false,
       missionLockEnabled: map['mission_lock_enabled'] as bool? ?? true,
       calmNotificationsEnabled:
           map['calm_notifications_enabled'] as bool? ?? true,

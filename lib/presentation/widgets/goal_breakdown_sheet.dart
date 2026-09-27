@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../../data/models/goal.dart';
 import '../providers/app_providers.dart';
@@ -45,7 +46,10 @@ class GoalBreakdownSheet extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.darkSurfaceContainerHigh,
                   borderRadius: BorderRadius.circular(12),
@@ -140,23 +144,25 @@ class GoalBreakdownSheet extends ConsumerWidget {
                 return InkWell(
                   onTap: () {
                     HapticFeedback.selectionClick();
-                    ref.read(goalsNotifierProvider.notifier).toggleMilestone(
-                          currentGoal.id,
-                          milestone.id,
-                        );
+                    ref
+                        .read(goalsNotifierProvider.notifier)
+                        .toggleMilestone(currentGoal.id, milestone.id);
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.darkSurfaceContainerLow,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: milestone.isCompleted
                             ? AppColors.successEmerald.withValues(alpha: 0.3)
-                            : AppColors.darkOutlineVariant
-                                .withValues(alpha: 0.2),
+                            : AppColors.darkOutlineVariant.withValues(
+                                alpha: 0.2,
+                              ),
                       ),
                     ),
                     child: Row(
@@ -204,7 +210,9 @@ class GoalBreakdownSheet extends ConsumerWidget {
                             tooltip: "Schedule in Today's Flow",
                             onPressed: () {
                               HapticFeedback.mediumImpact();
-                              ref.read(tasksNotifierProvider.notifier).addTask(
+                              ref
+                                  .read(tasksNotifierProvider.notifier)
+                                  .addTask(
                                     title: milestone.title,
                                     subtitle:
                                         'Milestone • ${currentGoal.title}',
@@ -215,7 +223,8 @@ class GoalBreakdownSheet extends ConsumerWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                      "Scheduled '${milestone.title}' in Today's Flow"),
+                                    "Scheduled '${milestone.title}' in Today's Flow",
+                                  ),
                                   duration: const Duration(seconds: 2),
                                 ),
                               );

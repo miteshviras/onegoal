@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import '../../core/services/storage_service.dart';
 import '../models/daily_reflection.dart';
 import '../models/quiet_milestone.dart';
@@ -15,7 +16,9 @@ class ProgressRepository {
     if (raw == null || raw.isEmpty) return [];
     try {
       final List<dynamic> list = json.decode(raw);
-      return list.map((e) => DailyReflection.fromMap(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => DailyReflection.fromMap(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -39,7 +42,9 @@ class ProgressRepository {
     }
     try {
       final List<dynamic> list = json.decode(raw);
-      return list.map((e) => QuietMilestone.fromMap(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => QuietMilestone.fromMap(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return _getDefaultMilestones();
     }

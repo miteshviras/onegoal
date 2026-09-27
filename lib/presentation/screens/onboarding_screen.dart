@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../../data/models/goal.dart';
 import '../../data/models/task_item.dart';
@@ -19,10 +20,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _currentPage = 0;
 
   // Step 2 state (Profile Customization)
-  final TextEditingController _nameController =
-      TextEditingController(text: '');
-  final TextEditingController _titleController =
-      TextEditingController(text: '');
+  final TextEditingController _nameController = TextEditingController(text: '');
+  final TextEditingController _titleController = TextEditingController(
+    text: '',
+  );
   String _selectedAvatar = 'assets/images/app_logo.png';
   String _coachingTone = 'gentle'; // 'gentle' | 'concise'
   String _morningTime = '08:30 AM';
@@ -30,33 +31,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _focusDuration = 25;
 
   final List<Map<String, String>> _avatarPresets = [
-    {
-      'label': 'Orbit',
-      'url': 'assets/images/app_logo.png',
-      'isAsset': 'true',
-    },
+    {'label': 'Orbit', 'url': 'assets/images/app_logo.png', 'isAsset': 'true'},
     {
       'label': 'Zen',
-      'url':
-          'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
+      'url': 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
       'isAsset': 'false',
     },
     {
       'label': 'Creator',
-      'url':
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      'url': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       'isAsset': 'false',
     },
     {
       'label': 'Builder',
-      'url':
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+      'url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
       'isAsset': 'false',
     },
     {
       'label': 'Focus',
-      'url':
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+      'url': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
       'isAsset': 'false',
     },
   ];
@@ -75,10 +68,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   bool _timerChimesAllowed = true;
 
   // Step 4 state (First Goal)
-  final TextEditingController _goalTitleController =
-      TextEditingController(text: 'Launch MVP');
-  final TextEditingController _firstStepController =
-      TextEditingController(text: 'Define core user journey');
+  final TextEditingController _goalTitleController = TextEditingController(
+    text: 'Launch MVP',
+  );
+  final TextEditingController _firstStepController = TextEditingController(
+    text: 'Define core user journey',
+  );
   String _selectedCategory = 'Career & Craft';
   int _targetDays = 14;
 
@@ -202,7 +197,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
 
     // 3. Complete User Profile with customized data
-    await ref.read(userProfileNotifierProvider.notifier).completeOnboarding(
+    await ref
+        .read(userProfileNotifierProvider.notifier)
+        .completeOnboarding(
           name: name,
           title: title,
           avatarUrl: _selectedAvatar,
@@ -236,7 +233,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: isActive
                               ? AppColors.fidelityDarkAccent
-                              : AppColors.fidelityDarkMutedText.withValues(alpha: 0.3),
+                              : AppColors.fidelityDarkMutedText.withValues(
+                                  alpha: 0.3,
+                                ),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       );
@@ -301,14 +300,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(28),
                     gradient: const LinearGradient(
-                      colors: [
-                        AppColors.fidelityDarkAccent,
-                        Color(0xFF2563EB),
-                      ],
+                      colors: [AppColors.fidelityDarkAccent, Color(0xFF2563EB)],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.fidelityDarkAccent.withValues(alpha: 0.35),
+                        color: AppColors.fidelityDarkAccent.withValues(
+                          alpha: 0.35,
+                        ),
                         blurRadius: 18,
                         offset: const Offset(0, 6),
                       ),
@@ -398,24 +396,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _buildPhilosophyPillar(
             icon: Icons.filter_1_rounded,
             title: 'The Rule of One',
-            description:
-                'One daily mission anchors your focus. If you only accomplish this, your day is a triumph.',
+            description: 'One daily mission anchors your focus. If you only accomplish this, your day is a triumph.',
             color: AppColors.fidelityCyan,
           ),
           const SizedBox(height: 16),
           _buildPhilosophyPillar(
             icon: Icons.lock_outline_rounded,
             title: '3-Slot Active Ceiling',
-            description:
-                'Strict cap of 3 active goals. Prevent multi-project overload and fragmented attention.',
+            description: 'Strict cap of 3 active goals. Prevent multi-project overload and fragmented attention.',
             color: AppColors.fidelityDarkAccent,
           ),
           const SizedBox(height: 16),
           _buildPhilosophyPillar(
             icon: Icons.spa_outlined,
             title: 'Zero-Guilt Rescheduling',
-            description:
-                'Life has surprises. Roll steps forward effortlessly with zero shame badges.',
+            description: 'Life has surprises. Roll steps forward effortlessly with zero shame badges.',
             color: AppColors.fidelityEmerald,
           ),
           const SizedBox(height: 20),
@@ -542,8 +537,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.fidelityDarkAccent
-                                : AppColors.fidelityDarkBorder
-                                    .withValues(alpha: 0.5),
+                                : AppColors.fidelityDarkBorder.withValues(
+                                    alpha: 0.5,
+                                  ),
                             width: isSelected ? 2.5 : 1.2,
                           ),
                           boxShadow: isSelected
@@ -564,8 +560,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                   preset['url']!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(Icons.person,
-                                          color: AppColors.fidelityDarkAccent),
+                                      const Icon(
+                                        Icons.person,
+                                        color: AppColors.fidelityDarkAccent,
+                                      ),
                                 ),
                         ),
                       ),
@@ -609,19 +607,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               hintStyle: GoogleFonts.manrope(
                 color: AppColors.fidelityDarkMutedText.withValues(alpha: 0.6),
               ),
-              prefixIcon: const Icon(Icons.person_outline,
-                  color: AppColors.fidelityDarkMutedText),
+              prefixIcon: const Icon(
+                Icons.person_outline,
+                color: AppColors.fidelityDarkMutedText,
+              ),
               filled: true,
               fillColor: AppColors.fidelityDarkCard,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -646,19 +648,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               hintStyle: GoogleFonts.manrope(
                 color: AppColors.fidelityDarkMutedText.withValues(alpha: 0.6),
               ),
-              prefixIcon: const Icon(Icons.workspace_premium_outlined,
-                  color: AppColors.fidelityDarkMutedText),
+              prefixIcon: const Icon(
+                Icons.workspace_premium_outlined,
+                color: AppColors.fidelityDarkMutedText,
+              ),
               filled: true,
               fillColor: AppColors.fidelityDarkCard,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -675,8 +681,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   });
                 },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: isMatch
                         ? AppColors.fidelityDarkAccent.withValues(alpha: 0.2)
@@ -873,7 +881,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               style: GoogleFonts.manrope(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.fidelityDarkMutedText,
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.fidelityDarkMutedText,
               ),
             ),
           ),
@@ -976,8 +986,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _buildPermissionToggle(
             icon: Icons.notifications_none_rounded,
             title: 'Quiet Daily Nudges',
-            description:
-                'Morning check-in at 8:30 AM to set today’s mission, and evening wind-down ritual review.',
+            description: 'Morning check-in at 8:30 AM to set today’s mission, and evening wind-down ritual review.',
             value: _notificationsAllowed,
             color: AppColors.fidelityCyan,
             onChanged: (val) => setState(() => _notificationsAllowed = val),
@@ -986,8 +995,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _buildPermissionToggle(
             icon: Icons.timer_outlined,
             title: 'Tibetan Focus Chime',
-            description:
-                'Play a gentle singing bowl chime and soothing haptic pulse when your 25-minute sprint ends.',
+            description: 'Play a gentle singing bowl chime and soothing haptic pulse when your 25-minute sprint ends.',
             value: _timerChimesAllowed,
             color: AppColors.fidelityEmerald,
             onChanged: (val) => setState(() => _timerChimesAllowed = val),
@@ -1153,19 +1161,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             style: GoogleFonts.manrope(color: AppColors.fidelityDarkText),
             decoration: InputDecoration(
               hintText: 'e.g. Launch Mobile App MVP',
-              prefixIcon: const Icon(Icons.flag_outlined,
-                  color: AppColors.fidelityDarkMutedText),
+              prefixIcon: const Icon(
+                Icons.flag_outlined,
+                color: AppColors.fidelityDarkMutedText,
+              ),
               filled: true,
               fillColor: AppColors.fidelityDarkCard,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -1241,7 +1253,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         border: Border.all(
                           color: isSelected
                               ? AppColors.fidelityDarkAccent
-                              : AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                              : AppColors.fidelityDarkBorder.withValues(
+                                  alpha: 0.5,
+                                ),
                         ),
                       ),
                       child: Center(
@@ -1281,19 +1295,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             style: GoogleFonts.manrope(color: AppColors.fidelityDarkText),
             decoration: InputDecoration(
               hintText: 'e.g. Outline architecture & tech stack',
-              prefixIcon: const Icon(Icons.check_circle_outline,
-                  color: AppColors.fidelityDarkMutedText),
+              prefixIcon: const Icon(
+                Icons.check_circle_outline,
+                color: AppColors.fidelityDarkMutedText,
+              ),
               filled: true,
               fillColor: AppColors.fidelityDarkCard,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
-                    color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5)),
+                  color: AppColors.fidelityDarkBorder.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),

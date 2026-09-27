@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
+import '../widgets/edit_profile_dialog.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
-  void _showTimerDurationDialog(BuildContext context, WidgetRef ref, int current) {
+  void _showTimerDurationDialog(
+    BuildContext context,
+    WidgetRef ref,
+    int current,
+  ) {
     HapticFeedback.selectionClick();
     showDialog(
       context: context,
@@ -54,7 +60,11 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ),
                     if (mins == current)
-                      const Icon(Icons.check, color: AppColors.primary, size: 20),
+                      const Icon(
+                        Icons.check,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
                   ],
                 ),
               ),
@@ -65,8 +75,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-
-
   void _showMindfulBreakDialog(BuildContext context, WidgetRef ref) {
     HapticFeedback.selectionClick();
     showDialog(
@@ -74,8 +82,9 @@ class ProfileScreen extends ConsumerWidget {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.darkSurfaceContainer,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: const Text(
             'Take a Mindful Break',
             style: TextStyle(
@@ -139,8 +148,8 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     'Profile & Settings',
                     style: TextStyle(
                       fontSize: 20,
@@ -149,10 +158,14 @@ class ProfileScreen extends ConsumerWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  Icon(
-                    Icons.tune,
-                    color: AppColors.darkOutline,
-                    size: 20,
+                  IconButton(
+                    icon: const Icon(
+                      Icons.edit_note,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
+                    tooltip: 'Edit Profile',
+                    onPressed: () => EditProfileSheet.show(context, profile),
                   ),
                 ],
               ),
@@ -168,60 +181,67 @@ class ProfileScreen extends ConsumerWidget {
             Center(
               child: Column(
                 children: [
-                  Stack(
-                    children: [
-                      Container(
-                        width: 90,
-                        height: 90,
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.darkSurfaceContainer,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.darkOutlineVariant
-                                .withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: ClipOval(
-                          child: profile.avatarUrl.startsWith('assets/')
-                              ? Image.asset(profile.avatarUrl, fit: BoxFit.cover)
-                              : Image.network(
-                                  profile.avatarUrl.isNotEmpty
-                                      ? profile.avatarUrl
-                                      : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(
-                                    Icons.person,
-                                    color: AppColors.primary,
-                                    size: 44,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 4,
-                        right: 4,
-                        child: Container(
-                          width: 18,
-                          height: 18,
+                  GestureDetector(
+                    onTap: () => EditProfileSheet.show(context, profile),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 90,
+                          height: 90,
+                          padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: AppColors.darkSurfaceContainerLow,
+                            color: AppColors.darkSurfaceContainer,
                             shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Container(
-                              width: 12,
-                              height: 12,
-                              decoration: const BoxDecoration(
-                                color: AppColors.successEmerald,
-                                shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.darkOutlineVariant.withValues(
+                                alpha: 0.4,
                               ),
                             ),
                           ),
+                          child: ClipOval(
+                            child: profile.avatarUrl.startsWith('assets/')
+                                ? Image.asset(
+                                    profile.avatarUrl,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.network(
+                                    profile.avatarUrl.isNotEmpty
+                                        ? profile.avatarUrl
+                                        : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=200&q=80',
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(
+                                              Icons.person,
+                                              color: AppColors.primary,
+                                              size: 44,
+                                            ),
+                                  ),
+                          ),
                         ),
-                      ),
-                    ],
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.darkBackground,
+                                width: 2,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              size: 13,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -241,10 +261,32 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 10),
+                  OutlinedButton.icon(
+                    onPressed: () => EditProfileSheet.show(context, profile),
+                    icon: const Icon(Icons.edit_outlined, size: 14),
+                    label: const Text('Edit Profile'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: BorderSide(
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primaryContainer.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(16),
@@ -388,7 +430,8 @@ class ProfileScreen extends ConsumerWidget {
                   _buildSwitchTile(
                     icon: Icons.notifications_paused,
                     title: 'Calm Notifications',
-                    subtitle: 'Zero guilt triggers; gentle next-step nudges only',
+                    subtitle:
+                        'Zero guilt triggers; gentle next-step nudges only',
                     value: profile.calmNotificationsEnabled,
                     onChanged: (val) {
                       HapticFeedback.selectionClick();
@@ -445,7 +488,10 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ),
                     onTap: () => _showTimerDurationDialog(
-                        context, ref, profile.focusTimerMinutes),
+                      context,
+                      ref,
+                      profile.focusTimerMinutes,
+                    ),
                   ),
                 ],
               ),
@@ -457,8 +503,7 @@ class ProfileScreen extends ConsumerWidget {
               title: 'AI Companion Behavior',
               badge: Row(
                 children: const [
-                  Icon(Icons.auto_awesome,
-                      color: AppColors.tertiary, size: 14),
+                  Icon(Icons.auto_awesome, color: AppColors.tertiary, size: 14),
                   SizedBox(width: 4),
                   Text(
                     'Adaptive',
@@ -538,10 +583,13 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.primaryContainer.withValues(alpha: 0.3),
+                          color: AppColors.primaryContainer.withValues(
+                            alpha: 0.3,
+                          ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Text(
@@ -637,7 +685,11 @@ class ProfileScreen extends ConsumerWidget {
             // Mindful Break / Log Out
             OutlinedButton.icon(
               onPressed: () => _showMindfulBreakDialog(context, ref),
-              icon: const Icon(Icons.logout, color: AppColors.errorMuted, size: 18),
+              icon: const Icon(
+                Icons.logout,
+                color: AppColors.errorMuted,
+                size: 18,
+              ),
               label: const Text(
                 'Take a Mindful Break (Log Out)',
                 style: TextStyle(
@@ -768,7 +820,11 @@ class ProfileScreen extends ConsumerWidget {
                 color: AppColors.darkSurfaceContainerHigh,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: AppColors.darkOnSurfaceVariant, size: 20),
+              child: Icon(
+                icon,
+                color: AppColors.darkOnSurfaceVariant,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(

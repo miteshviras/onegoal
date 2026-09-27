@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../providers/app_providers.dart';
 import '../widgets/new_task_dialog.dart';
@@ -30,16 +31,16 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
 
   DateTime get _startOfWeek {
     final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
   }
 
   void _openAddTaskDialog() {
     HapticFeedback.selectionClick();
-    showDialog(
-      context: context,
-      builder: (context) => const NewTaskDialog(),
-    );
+    showDialog(context: context, builder: (context) => const NewTaskDialog());
   }
 
   void _showBlockOptionsSheet(BuildContext context, dynamic task) {
@@ -160,8 +161,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     final tasksState = ref.watch(tasksNotifierProvider);
     final timerState = ref.watch(focusTimerNotifierProvider);
 
-    final selectedDate =
-        _startOfWeek.add(Duration(days: _selectedDayIndex));
+    final selectedDate = _startOfWeek.add(Duration(days: _selectedDayIndex));
     final headerDateStr = DateFormat('EEEE, MMM d').format(selectedDate);
     final isTodaySelected = _selectedDayIndex == (DateTime.now().weekday - 1);
 
@@ -224,8 +224,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                           color: AppColors.darkSurfaceContainerHigh,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.darkOutlineVariant
-                                .withValues(alpha: 0.3),
+                            color: AppColors.darkOutlineVariant.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                         ),
                         child: const Icon(
@@ -281,15 +282,16 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: isSelected
                               ? Border.all(
-                                  color: AppColors.primary
-                                      .withValues(alpha: 0.4),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.4,
+                                  ),
                                 )
                               : (isCurrentDay
-                                  ? Border.all(
-                                      color: AppColors.darkOutlineVariant
-                                          .withValues(alpha: 0.4),
-                                    )
-                                  : null),
+                                    ? Border.all(
+                                        color: AppColors.darkOutlineVariant
+                                            .withValues(alpha: 0.4),
+                                      )
+                                    : null),
                         ),
                         child: Column(
                           children: [
@@ -301,8 +303,10 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                 color: isSelected
                                     ? AppColors.primary
                                     : (isCurrentDay
-                                        ? AppColors.primary.withValues(alpha: 0.8)
-                                        : AppColors.darkOutline),
+                                          ? AppColors.primary.withValues(
+                                              alpha: 0.8,
+                                            )
+                                          : AppColors.darkOutline),
                               ),
                             ),
                             const SizedBox(height: 3),
@@ -314,8 +318,8 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                 color: isSelected
                                     ? Colors.white
                                     : (isCurrentDay
-                                        ? AppColors.primary
-                                        : AppColors.darkOnSurface),
+                                          ? AppColors.primary
+                                          : AppColors.darkOnSurface),
                               ),
                             ),
                           ],
@@ -346,8 +350,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color:
-                            AppColors.tertiaryContainer.withValues(alpha: 0.3),
+                        color: AppColors.tertiaryContainer.withValues(
+                          alpha: 0.3,
+                        ),
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
                           color: AppColors.tertiary.withValues(alpha: 0.4),
@@ -380,8 +385,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                 width: 4,
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color:
-                                      AppColors.tertiary.withValues(alpha: 0.5),
+                                  color: AppColors.tertiary.withValues(
+                                    alpha: 0.5,
+                                  ),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -489,15 +495,16 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                       color: isDone
                                           ? AppColors.successEmerald
                                           : (isFocus
-                                              ? AppColors.primary
-                                              : AppColors
-                                                  .darkSurfaceContainer),
+                                                ? AppColors.primary
+                                                : AppColors
+                                                      .darkSurfaceContainer),
                                       border: Border.all(
                                         color: isFocus
-                                            ? AppColors.primary
-                                                .withValues(alpha: 0.3)
+                                            ? AppColors.primary.withValues(
+                                                alpha: 0.3,
+                                              )
                                             : AppColors.darkOutlineVariant
-                                                .withValues(alpha: 0.4),
+                                                  .withValues(alpha: 0.4),
                                         width: isFocus ? 3 : 1,
                                       ),
                                       boxShadow: isFocus
@@ -515,9 +522,8 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                       isDone
                                           ? Icons.check
                                           : (isFocus
-                                              ? Icons.play_arrow
-                                              : Icons
-                                                  .radio_button_unchecked),
+                                                ? Icons.play_arrow
+                                                : Icons.radio_button_unchecked),
                                       color: isDone || isFocus
                                           ? Colors.black
                                           : AppColors.darkOutline,
@@ -537,18 +543,18 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                       decoration: BoxDecoration(
                                         color: isFocus
                                             ? AppColors.darkSurfaceContainer
-                                            : AppColors
-                                                .darkSurfaceContainerLow
-                                                .withValues(
-                                                    alpha: isDone ? 0.7 : 1.0),
-                                        borderRadius:
-                                            BorderRadius.circular(16),
+                                            : AppColors.darkSurfaceContainerLow
+                                                  .withValues(
+                                                    alpha: isDone ? 0.7 : 1.0,
+                                                  ),
+                                        borderRadius: BorderRadius.circular(16),
                                         border: Border.all(
                                           color: isFocus
-                                              ? AppColors.primary
-                                                  .withValues(alpha: 0.4)
+                                              ? AppColors.primary.withValues(
+                                                  alpha: 0.4,
+                                                )
                                               : AppColors.darkOutlineVariant
-                                                  .withValues(alpha: 0.25),
+                                                    .withValues(alpha: 0.25),
                                         ),
                                         boxShadow: isFocus
                                             ? [
@@ -567,8 +573,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                         children: [
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
                                                 '${task.scheduledTime} • ${task.durationMinutes}m',
@@ -576,54 +581,56 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.bold,
                                                   color: isDone
-                                                      ? AppColors
-                                                          .successEmerald
+                                                      ? AppColors.successEmerald
                                                       : (isFocus
-                                                          ? AppColors.primary
-                                                          : AppColors
-                                                              .darkOutline),
+                                                            ? AppColors.primary
+                                                            : AppColors
+                                                                  .darkOutline),
                                                   letterSpacing: 0.3,
                                                 ),
                                               ),
                                               Row(
                                                 children: [
                                                   Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 2),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 2,
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color: isDone
                                                           ? AppColors
-                                                              .successEmerald
-                                                              .withValues(
-                                                                  alpha: 0.15)
+                                                                .successEmerald
+                                                                .withValues(
+                                                                  alpha: 0.15,
+                                                                )
                                                           : (isFocus
-                                                              ? AppColors
-                                                                  .primaryContainer
-                                                              : AppColors
-                                                                  .darkSurfaceContainerHighest),
+                                                                ? AppColors
+                                                                      .primaryContainer
+                                                                : AppColors
+                                                                      .darkSurfaceContainerHighest),
                                                       borderRadius:
-                                                          BorderRadius
-                                                              .circular(10),
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
                                                     ),
                                                     child: Text(
                                                       isDone
                                                           ? 'Finished'
                                                           : (isFocus
-                                                              ? 'Focus Mode'
-                                                              : 'Upcoming'),
+                                                                ? 'Focus Mode'
+                                                                : 'Upcoming'),
                                                       style: TextStyle(
                                                         fontSize: 10,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color: isDone
                                                             ? AppColors
-                                                                .successEmerald
+                                                                  .successEmerald
                                                             : (isFocus
-                                                                ? Colors.white
-                                                                : AppColors
-                                                                    .darkOnSurfaceVariant),
+                                                                  ? Colors.white
+                                                                  : AppColors
+                                                                        .darkOnSurfaceVariant),
                                                       ),
                                                     ),
                                                   ),
@@ -686,54 +693,50 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                                               TimerStatus
                                                                   .running
                                                           ? timerState
-                                                              .formattedTime
+                                                                .formattedTime
                                                           : '${task.durationMinutes} min remaining',
                                                       style: const TextStyle(
                                                         fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.bold,
-                                                        color: AppColors
-                                                            .primary,
+                                                        color:
+                                                            AppColors.primary,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                                 FilledButton.icon(
                                                   onPressed: () {
-                                                    HapticFeedback
-                                                        .mediumImpact();
+                                                    HapticFeedback.mediumImpact();
                                                     ref
                                                         .read(
-                                                            tasksNotifierProvider
-                                                                .notifier)
+                                                          tasksNotifierProvider
+                                                              .notifier,
+                                                        )
                                                         .toggleTask(task.id);
                                                   },
                                                   icon: const Icon(
                                                     Icons.check_circle,
                                                     size: 16,
                                                   ),
-                                                  label:
-                                                      const Text('Complete'),
-                                                  style:
-                                                      FilledButton.styleFrom(
+                                                  label: const Text('Complete'),
+                                                  style: FilledButton.styleFrom(
                                                     backgroundColor:
                                                         AppColors.primary,
                                                     foregroundColor:
                                                         Colors.black,
-                                                    shape:
-                                                        RoundedRectangleBorder(
+                                                    shape: RoundedRectangleBorder(
                                                       borderRadius:
-                                                          BorderRadius
-                                                              .circular(12),
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
                                                     ),
                                                     padding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                      horizontal: 14,
-                                                      vertical: 8,
-                                                    ),
-                                                    textStyle:
-                                                        const TextStyle(
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 14,
+                                                          vertical: 8,
+                                                        ),
+                                                    textStyle: const TextStyle(
                                                       fontSize: 12,
                                                       fontWeight:
                                                           FontWeight.bold,

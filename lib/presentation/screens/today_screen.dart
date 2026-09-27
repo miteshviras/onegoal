@@ -1,8 +1,10 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../../data/models/task_item.dart';
 import '../../data/models/goal.dart';
@@ -32,7 +34,9 @@ class TodayScreen extends ConsumerWidget {
 
     final now = DateTime.now();
     final hour = now.hour;
-    final greeting = hour < 12 ? 'Good morning' : (hour < 17 ? 'Good afternoon' : 'Good evening');
+    final greeting = hour < 12
+        ? 'Good morning'
+        : (hour < 17 ? 'Good afternoon' : 'Good evening');
     final formattedDate = 'Today, ${DateFormat('MMM d').format(now)}';
 
     return Scaffold(
@@ -63,7 +67,8 @@ class TodayScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF0E5FC3).withValues(alpha: 0.4),
+                              color: const Color(0xFF0E5FC3)
+                                  .withValues(alpha: 0.4),
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -85,9 +90,7 @@ class TodayScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 'Focus',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
+                                style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.darkOnSurface,
@@ -134,13 +137,17 @@ class TodayScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.darkOutlineVariant
-                              .withValues(alpha: 0.6),
+                          color: AppColors.darkOutlineVariant.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                       child: ClipOval(
                         child: userProfile.avatarUrl.startsWith('assets/')
-                            ? Image.asset(userProfile.avatarUrl, fit: BoxFit.cover)
+                            ? Image.asset(
+                                userProfile.avatarUrl,
+                                fit: BoxFit.cover,
+                              )
                             : Image.network(
                                 userProfile.avatarUrl.isNotEmpty
                                     ? userProfile.avatarUrl
@@ -148,10 +155,10 @@ class TodayScreen extends ConsumerWidget {
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     const Icon(
-                                  Icons.person,
-                                  color: AppColors.darkOnSurface,
-                                  size: 20,
-                                ),
+                                      Icons.person,
+                                      color: AppColors.darkOnSurface,
+                                      size: 20,
+                                    ),
                               ),
                       ),
                     ),
@@ -205,7 +212,9 @@ class TodayScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppColors.darkOutlineVariant.withValues(alpha: 0.4),
+                      color: AppColors.darkOutlineVariant.withValues(
+                        alpha: 0.4,
+                      ),
                     ),
                   ),
                   child: ClipOval(
@@ -218,10 +227,10 @@ class TodayScreen extends ConsumerWidget {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
                                 const Icon(
-                              Icons.spa,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
+                                  Icons.spa,
+                                  color: AppColors.primary,
+                                  size: 20,
+                                ),
                           ),
                   ),
                 ),
@@ -235,161 +244,167 @@ class TodayScreen extends ConsumerWidget {
             else
               Container(
                 width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.darkSurfaceContainerLow,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+                decoration: BoxDecoration(
+                  color: AppColors.darkSurfaceContainerLow,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryContainer.withValues(
+                              alpha: 0.4,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: const Text(
+                            "Today's Mission",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkSurfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.darkOutlineVariant.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Text('🔥', style: TextStyle(fontSize: 12)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Day ${missionGoal.streakDays}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.darkOnSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                missionGoal.title,
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                missionGoal.description,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.darkOutline,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Progress Ring
+                        SizedBox(
+                          width: 58,
+                          height: 58,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CustomPaint(
+                                size: const Size(58, 58),
+                                painter: _SingleRingPainter(
+                                  progress: progressFraction,
+                                  strokeColor: AppColors.successEmerald,
+                                ),
+                              ),
+                              Text(
+                                '$completedCount/$totalCount',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.verified,
+                          color: AppColors.successEmerald,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            missionGoal.affirmation.isNotEmpty
+                                ? '“${missionGoal.affirmation}”'
+                                : '“One conscious step at a time.”',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: AppColors.darkOnSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color:
-                              AppColors.primaryContainer.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: const Text(
-                          "Today's Mission",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.darkSurfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.darkOutlineVariant
-                                .withValues(alpha: 0.2),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Text('🔥', style: TextStyle(fontSize: 12)),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Day ${missionGoal.streakDays}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.darkOnSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              missionGoal.title,
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              missionGoal.description,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.darkOutline,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Progress Ring
-                      SizedBox(
-                        width: 58,
-                        height: 58,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CustomPaint(
-                              size: const Size(58, 58),
-                              painter: _SingleRingPainter(
-                                progress: progressFraction,
-                                strokeColor: AppColors.successEmerald,
-                              ),
-                            ),
-                            Text(
-                              '$completedCount/$totalCount',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.verified,
-                        color: AppColors.successEmerald,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          missionGoal.affirmation.isNotEmpty
-                              ? '“${missionGoal.affirmation}”'
-                              : '“One conscious step at a time.”',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontStyle: FontStyle.italic,
-                            color: AppColors.darkOnSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 16),
 
             // 3. Next Actionable Step Card
@@ -452,14 +467,17 @@ class TodayScreen extends ConsumerWidget {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 3),
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: AppColors.primaryContainer
                                           .withValues(alpha: 0.3),
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: AppColors.primary
-                                            .withValues(alpha: 0.3),
+                                        color: AppColors.primary.withValues(
+                                          alpha: 0.3,
+                                        ),
                                       ),
                                     ),
                                     child: const Text(
@@ -486,7 +504,8 @@ class TodayScreen extends ConsumerWidget {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: timerState.status ==
+                                          color:
+                                              timerState.status ==
                                                   TimerStatus.running
                                               ? AppColors.primary
                                               : AppColors.darkOutline,
@@ -537,7 +556,9 @@ class TodayScreen extends ConsumerWidget {
                                       if (inFocusTask != null) {
                                         HapticFeedback.mediumImpact();
                                         ref
-                                            .read(tasksNotifierProvider.notifier)
+                                            .read(
+                                              tasksNotifierProvider.notifier,
+                                            )
                                             .toggleTask(inFocusTask.id);
                                       }
                                     },
@@ -549,13 +570,14 @@ class TodayScreen extends ConsumerWidget {
                                         shape: BoxShape.circle,
                                         color: inFocusTask?.isCompleted == true
                                             ? AppColors.successEmerald
-                                            : AppColors.darkSurfaceContainerHigh,
+                                            : AppColors
+                                                  .darkSurfaceContainerHigh,
                                         border: Border.all(
-                                          color: inFocusTask?.isCompleted ==
-                                                  true
+                                          color:
+                                              inFocusTask?.isCompleted == true
                                               ? AppColors.successEmerald
                                               : AppColors.darkOutlineVariant
-                                                  .withValues(alpha: 0.4),
+                                                    .withValues(alpha: 0.4),
                                         ),
                                       ),
                                       child: Icon(
@@ -577,8 +599,7 @@ class TodayScreen extends ConsumerWidget {
                                     child: Container(
                                       height: 46,
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(24),
+                                        borderRadius: BorderRadius.circular(24),
                                         gradient: const LinearGradient(
                                           colors: [
                                             AppColors.accentPurpleStart,
@@ -601,8 +622,9 @@ class TodayScreen extends ConsumerWidget {
                                               TimerStatus.running) {
                                             ref
                                                 .read(
-                                                    focusTimerNotifierProvider
-                                                        .notifier)
+                                                  focusTimerNotifierProvider
+                                                      .notifier,
+                                                )
                                                 .pause();
                                           } else {
                                             if (inFocusTask != null &&
@@ -612,8 +634,9 @@ class TodayScreen extends ConsumerWidget {
                                                         inFocusTask.title)) {
                                               ref
                                                   .read(
-                                                      focusTimerNotifierProvider
-                                                          .notifier)
+                                                    focusTimerNotifierProvider
+                                                        .notifier,
+                                                  )
                                                   .setTaskAndDuration(
                                                     inFocusTask.title,
                                                     inFocusTask.durationMinutes,
@@ -623,8 +646,9 @@ class TodayScreen extends ConsumerWidget {
                                             }
                                             ref
                                                 .read(
-                                                    focusTimerNotifierProvider
-                                                        .notifier)
+                                                  focusTimerNotifierProvider
+                                                      .notifier,
+                                                )
                                                 .startOrResume();
                                           }
                                         },
@@ -641,12 +665,13 @@ class TodayScreen extends ConsumerWidget {
                                                   TimerStatus.running
                                               ? 'Pause Focus (${timerState.formattedTime})'
                                               : (timerState.status ==
-                                                      TimerStatus.paused
-                                                  ? 'Resume Focus (${timerState.formattedTime})'
-                                                  : (timerState.status ==
-                                                          TimerStatus.completed
-                                                      ? 'Focus Complete 🎉 Restart'
-                                                      : 'Begin ${inFocusTask?.durationMinutes ?? (timerState.totalSeconds ~/ 60)}m Focus')),
+                                                        TimerStatus.paused
+                                                    ? 'Resume Focus (${timerState.formattedTime})'
+                                                    : (timerState.status ==
+                                                              TimerStatus
+                                                                  .completed
+                                                          ? 'Focus Complete 🎉 Restart'
+                                                          : 'Begin ${inFocusTask?.durationMinutes ?? (timerState.totalSeconds ~/ 60)}m Focus')),
                                           style: const TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
@@ -657,8 +682,9 @@ class TodayScreen extends ConsumerWidget {
                                           backgroundColor: Colors.transparent,
                                           shadowColor: Colors.transparent,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(24),
+                                            borderRadius: BorderRadius.circular(
+                                              24,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -691,8 +717,10 @@ class TodayScreen extends ConsumerWidget {
                                         onPressed: () {
                                           HapticFeedback.selectionClick();
                                           ref
-                                              .read(focusTimerNotifierProvider
-                                                  .notifier)
+                                              .read(
+                                                focusTimerNotifierProvider
+                                                    .notifier,
+                                              )
                                               .reset();
                                         },
                                       ),
@@ -704,8 +732,7 @@ class TodayScreen extends ConsumerWidget {
                                     height: 44,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color:
-                                          AppColors.darkSurfaceContainerHigh,
+                                      color: AppColors.darkSurfaceContainerHigh,
                                       border: Border.all(
                                         color: AppColors.darkOutlineVariant
                                             .withValues(alpha: 0.4),
@@ -752,13 +779,16 @@ class TodayScreen extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.darkSurfaceContainerHigh,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppColors.darkOutlineVariant
-                              .withValues(alpha: 0.3),
+                          color: AppColors.darkOutlineVariant.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
                       ),
                       child: Text(
@@ -780,7 +810,11 @@ class TodayScreen extends ConsumerWidget {
                       builder: (ctx) => const NewTaskDialog(),
                     );
                   },
-                  icon: const Icon(Icons.add, size: 16, color: AppColors.primary),
+                  icon: const Icon(
+                    Icons.add,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
                   label: const Text(
                     'Add Step',
                     style: TextStyle(
@@ -790,7 +824,10 @@ class TodayScreen extends ConsumerWidget {
                     ),
                   ),
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -810,141 +847,143 @@ class TodayScreen extends ConsumerWidget {
               child: tasksState.tasks.isNotEmpty
                   ? ListView.separated(
                       shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: tasksState.tasks.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 14),
-                itemBuilder: (context, index) {
-                  final task = tasksState.tasks[index];
-                  final isDone = task.isCompleted;
-                  final isFocus = task.isCurrentFocus && !isDone;
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: tasksState.tasks.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 14),
+                      itemBuilder: (context, index) {
+                        final task = tasksState.tasks[index];
+                        final isDone = task.isCompleted;
+                        final isFocus = task.isCurrentFocus && !isDone;
 
-                  return InkWell(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      ref
-                          .read(tasksNotifierProvider.notifier)
-                          .toggleTask(task.id);
-                    },
-                    onLongPress: () {
-                      HapticFeedback.mediumImpact();
-                      _showTaskOptionsSheet(context, ref, task);
-                    },
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: isDone
-                                ? AppColors.successEmerald
-                                : (isFocus
-                                    ? AppColors.primaryContainer
-                                    : AppColors.darkSurfaceContainerHigh),
-                            border: Border.all(
-                              color: isFocus
-                                  ? AppColors.primary
-                                  : AppColors.darkOutlineVariant
-                                      .withValues(alpha: 0.4),
-                            ),
-                          ),
-                          child: Icon(
-                            isDone
-                                ? Icons.check
-                                : (isFocus
-                                    ? Icons.radio_button_checked
-                                    : Icons.schedule),
-                            color: isDone
-                                ? Colors.black
-                                : (isFocus
-                                    ? Colors.white
-                                    : AppColors.darkOutline),
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
+                        return InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            ref
+                                .read(tasksNotifierProvider.notifier)
+                                .toggleTask(task.id);
+                          },
+                          onLongPress: () {
+                            HapticFeedback.mediumImpact();
+                            _showTaskOptionsSheet(context, ref, task);
+                          },
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      task.title,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: isFocus
-                                            ? FontWeight.bold
-                                            : FontWeight.w500,
-                                        color: isDone
-                                            ? AppColors.darkOutline
-                                            : (isFocus
-                                                ? Colors.white
-                                                : AppColors.darkOnSurface),
-                                        decoration: isDone
-                                            ? TextDecoration.lineThrough
-                                            : null,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Text(
-                                    isFocus ? 'Now' : task.scheduledTime,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: isFocus
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                      color: isFocus
-                                          ? AppColors.primary
-                                          : AppColors.darkOutline,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                isDone
-                                    ? 'Completed'
-                                    : (isFocus
-                                        ? 'In progress • Focus active'
-                                        : 'Upcoming next'),
-                                style: TextStyle(
-                                  fontSize: 11,
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
                                   color: isDone
                                       ? AppColors.successEmerald
                                       : (isFocus
-                                          ? AppColors.primary
-                                          : AppColors.darkOutline),
+                                            ? AppColors.primaryContainer
+                                            : AppColors
+                                                  .darkSurfaceContainerHigh),
+                                  border: Border.all(
+                                    color: isFocus
+                                        ? AppColors.primary
+                                        : AppColors.darkOutlineVariant
+                                              .withValues(alpha: 0.4),
+                                  ),
                                 ),
+                                child: Icon(
+                                  isDone
+                                      ? Icons.check
+                                      : (isFocus
+                                            ? Icons.radio_button_checked
+                                            : Icons.schedule),
+                                  color: isDone
+                                      ? Colors.black
+                                      : (isFocus
+                                            ? Colors.white
+                                            : AppColors.darkOutline),
+                                  size: 16,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            task.title,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: isFocus
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w500,
+                                              color: isDone
+                                                  ? AppColors.darkOutline
+                                                  : (isFocus
+                                                        ? Colors.white
+                                                        : AppColors
+                                                              .darkOnSurface),
+                                              decoration: isDone
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Text(
+                                          isFocus ? 'Now' : task.scheduledTime,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: isFocus
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: isFocus
+                                                ? AppColors.primary
+                                                : AppColors.darkOutline,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      isDone
+                                          ? 'Completed'
+                                          : (isFocus
+                                                ? 'In progress • Focus active'
+                                                : 'Upcoming next'),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: isDone
+                                            ? AppColors.successEmerald
+                                            : (isFocus
+                                                  ? AppColors.primary
+                                                  : AppColors.darkOutline),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.more_horiz,
+                                  color: AppColors.darkOutline,
+                                  size: 16,
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  _showTaskOptionsSheet(context, ref, task);
+                                },
                               ),
                             ],
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.more_horiz,
-                            color: AppColors.darkOutline,
-                            size: 16,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: () {
-                            _showTaskOptionsSheet(context, ref, task);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              )
-                  : _buildEmptyDailyFlowCard(
-                      context, missionGoal?.id ?? ''),
+                        );
+                      },
+                    )
+                  : _buildEmptyDailyFlowCard(context, missionGoal?.id ?? ''),
             ),
             const SizedBox(height: 16),
 
@@ -1026,9 +1065,8 @@ class TodayScreen extends ConsumerWidget {
                     Image.network(
                       'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: AppColors.darkSurfaceContainerHigh,
-                      ),
+                      errorBuilder: (context, error, stackTrace) =>
+                          Container(color: AppColors.darkSurfaceContainerHigh),
                     ),
                     Container(
                       decoration: BoxDecoration(
@@ -1036,8 +1074,9 @@ class TodayScreen extends ConsumerWidget {
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                           colors: [
-                            AppColors.darkSurfaceContainerLowest
-                                .withValues(alpha: 0.9),
+                            AppColors.darkSurfaceContainerLowest.withValues(
+                              alpha: 0.9,
+                            ),
                             Colors.transparent,
                           ],
                         ),
@@ -1147,7 +1186,10 @@ class TodayScreen extends ConsumerWidget {
   }
 
   void _showGoalSelectorSheet(
-      BuildContext context, WidgetRef ref, List<Goal> activeGoals) {
+    BuildContext context,
+    WidgetRef ref,
+    List<Goal> activeGoals,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.darkSurfaceContainerLow,
@@ -1167,7 +1209,9 @@ class TodayScreen extends ConsumerWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.darkOutlineVariant.withValues(alpha: 0.4),
+                      color: AppColors.darkOutlineVariant.withValues(
+                        alpha: 0.4,
+                      ),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1184,29 +1228,31 @@ class TodayScreen extends ConsumerWidget {
                 const SizedBox(height: 6),
                 const Text(
                   'Select the single active goal to anchor your focus today.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.darkOutline,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppColors.darkOutline),
                 ),
                 const SizedBox(height: 16),
                 Flexible(
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: activeGoals.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 10),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final goal = activeGoals[index];
                       return ListTile(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                           side: BorderSide(
-                            color: AppColors.darkOutlineVariant
-                                .withValues(alpha: 0.3),
+                            color: AppColors.darkOutlineVariant.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                         ),
                         tileColor: AppColors.darkSurfaceContainerHigh,
-                        leading: const Icon(Icons.stars, color: AppColors.primary),
+                        leading: const Icon(
+                          Icons.stars,
+                          color: AppColors.primary,
+                        ),
                         title: Text(
                           goal.title,
                           style: const TextStyle(
@@ -1222,8 +1268,11 @@ class TodayScreen extends ConsumerWidget {
                             color: AppColors.darkOutline,
                           ),
                         ),
-                        trailing: const Icon(Icons.arrow_forward_ios,
-                            size: 14, color: AppColors.darkOutline),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                          color: AppColors.darkOutline,
+                        ),
                         onTap: () {
                           HapticFeedback.mediumImpact();
                           ref
@@ -1318,8 +1367,9 @@ class TodayScreen extends ConsumerWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color:
-                          AppColors.darkOutlineVariant.withValues(alpha: 0.4),
+                      color: AppColors.darkOutlineVariant.withValues(
+                        alpha: 0.4,
+                      ),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1336,32 +1386,29 @@ class TodayScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 const Text(
                   'Choose an intentional focus block for this task.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.darkOutline,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppColors.darkOutline),
                 ),
                 const SizedBox(height: 16),
                 ...[
                   {
                     'min': 15,
                     'label': '15 min',
-                    'desc': 'Quick Sprint — Clear immediate friction'
+                    'desc': 'Quick Sprint — Clear immediate friction',
                   },
                   {
                     'min': 25,
                     'label': '25 min',
-                    'desc': 'Standard Block — Optimal flow & calm'
+                    'desc': 'Standard Block — Optimal flow & calm',
                   },
                   {
                     'min': 45,
                     'label': '45 min',
-                    'desc': 'Deep Work — Complex creation & coding'
+                    'desc': 'Deep Work — Complex creation & coding',
                   },
                   {
                     'min': 60,
                     'label': '60 min',
-                    'desc': 'Deep Immersion — Uninterrupted flow'
+                    'desc': 'Deep Immersion — Uninterrupted flow',
                   },
                 ].map((item) {
                   final minutes = item['min'] as int;
@@ -1375,19 +1422,23 @@ class TodayScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: isCurrent
                             ? AppColors.primaryContainer.withValues(alpha: 0.3)
-                            : AppColors.darkSurfaceContainerHigh
-                                .withValues(alpha: 0.5),
+                            : AppColors.darkSurfaceContainerHigh.withValues(
+                                alpha: 0.5,
+                              ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isCurrent
                               ? AppColors.primary
-                              : AppColors.darkOutlineVariant
-                                  .withValues(alpha: 0.3),
+                              : AppColors.darkOutlineVariant.withValues(
+                                  alpha: 0.3,
+                                ),
                         ),
                       ),
                       child: Row(
@@ -1444,8 +1495,9 @@ class TodayScreen extends ConsumerWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.darkOutline,
                       side: BorderSide(
-                        color: AppColors.darkOutlineVariant
-                            .withValues(alpha: 0.4),
+                        color: AppColors.darkOutlineVariant.withValues(
+                          alpha: 0.4,
+                        ),
                       ),
                       minimumSize: const Size(double.infinity, 44),
                       shape: RoundedRectangleBorder(
@@ -1462,7 +1514,10 @@ class TodayScreen extends ConsumerWidget {
   }
 
   void _showTaskOptionsSheet(
-      BuildContext context, WidgetRef ref, TaskItem task) {
+    BuildContext context,
+    WidgetRef ref,
+    TaskItem task,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.darkSurfaceContainerLow,
@@ -1482,8 +1537,9 @@ class TodayScreen extends ConsumerWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color:
-                          AppColors.darkOutlineVariant.withValues(alpha: 0.4),
+                      color: AppColors.darkOutlineVariant.withValues(
+                        alpha: 0.4,
+                      ),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1511,10 +1567,14 @@ class TodayScreen extends ConsumerWidget {
                 ],
                 const SizedBox(height: 16),
                 ListTile(
-                  leading: const Icon(Icons.play_circle_outline,
-                      color: AppColors.primary),
-                  title: const Text('Set as Active Focus Step',
-                      style: TextStyle(color: Colors.white)),
+                  leading: const Icon(
+                    Icons.play_circle_outline,
+                    color: AppColors.primary,
+                  ),
+                  title: const Text(
+                    'Set as Active Focus Step',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   onTap: () {
                     HapticFeedback.selectionClick();
                     ref
@@ -1552,10 +1612,14 @@ class TodayScreen extends ConsumerWidget {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.delete_outline,
-                      color: AppColors.errorMuted),
-                  title: const Text('Delete Step',
-                      style: TextStyle(color: AppColors.errorMuted)),
+                  leading: const Icon(
+                    Icons.delete_outline,
+                    color: AppColors.errorMuted,
+                  ),
+                  title: const Text(
+                    'Delete Step',
+                    style: TextStyle(color: AppColors.errorMuted),
+                  ),
                   onTap: () {
                     HapticFeedback.mediumImpact();
                     ref
@@ -1572,7 +1636,6 @@ class TodayScreen extends ConsumerWidget {
     );
   }
 }
-
 
 class _SingleRingPainter extends CustomPainter {
   final double progress;
@@ -1608,5 +1671,6 @@ class _SingleRingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _SingleRingPainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.strokeColor != strokeColor;
+      oldDelegate.progress != progress ||
+      oldDelegate.strokeColor != strokeColor;
 }

@@ -1,7 +1,9 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../../data/models/goal.dart';
 import '../providers/app_providers.dart';
@@ -90,10 +92,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                 ),
                 if (!goal.isCompleted && !goal.isTodayMission)
                   ListTile(
-                    leading: const Icon(
-                      Icons.bolt,
-                      color: AppColors.secondary,
-                    ),
+                    leading: const Icon(Icons.bolt, color: AppColors.secondary),
                     title: const Text(
                       "Set as Today's Mission",
                       style: TextStyle(color: AppColors.darkOnSurface),
@@ -186,10 +185,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
     }
 
     HapticFeedback.selectionClick();
-    showDialog(
-      context: context,
-      builder: (context) => const NewGoalDialog(),
-    );
+    showDialog(context: context, builder: (context) => const NewGoalDialog());
   }
 
   @override
@@ -247,10 +243,13 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                       const SizedBox(width: 10),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: AppColors.secondaryContainer
-                              .withValues(alpha: 0.4),
+                          color: AppColors.secondaryContainer.withValues(
+                            alpha: 0.4,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: AppColors.secondary.withValues(alpha: 0.2),
@@ -369,8 +368,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                                 width: 24,
                                 height: 24,
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary
-                                      .withValues(alpha: 0.15),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.15,
+                                  ),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -391,7 +391,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                               const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 2),
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.darkSurfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(10),
@@ -430,13 +432,16 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                           return Container(
                             margin: const EdgeInsets.only(top: 8),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.darkSurfaceContainer,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: AppColors.darkOutlineVariant
-                                    .withValues(alpha: 0.2),
+                                color: AppColors.darkOutlineVariant.withValues(
+                                  alpha: 0.2,
+                                ),
                               ),
                             ),
                             child: Row(
@@ -477,7 +482,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 2),
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.darkSurfaceContainerHigh,
                                     borderRadius: BorderRadius.circular(6),
@@ -571,10 +578,13 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                     if (goal.isTodayMission)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.primaryContainer.withValues(alpha: 0.4),
+                          color: AppColors.primaryContainer.withValues(
+                            alpha: 0.4,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: AppColors.primary.withValues(alpha: 0.3),
@@ -583,7 +593,11 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.stars, color: AppColors.primary, size: 12),
+                            Icon(
+                              Icons.stars,
+                              color: AppColors.primary,
+                              size: 12,
+                            ),
                             SizedBox(width: 4),
                             Text(
                               "Today's Mission",
@@ -598,13 +612,16 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                       ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 3),
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.darkSurfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color:
-                              AppColors.darkOutlineVariant.withValues(alpha: 0.3),
+                          color: AppColors.darkOutlineVariant.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
                       ),
                       child: Text(
@@ -665,12 +682,10 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                 fit: StackFit.expand,
                 children: [
                   Image.network(
-                    goal.imageUrl ??
-                        'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
+                    goal.imageUrl ?? 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: AppColors.darkSurfaceContainerHigh,
-                    ),
+                    errorBuilder: (context, error, stackTrace) =>
+                        Container(color: AppColors.darkSurfaceContainerHigh),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -678,8 +693,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [
-                          AppColors.darkSurfaceContainerLowest
-                              .withValues(alpha: 0.8),
+                          AppColors.darkSurfaceContainerLowest.withValues(
+                            alpha: 0.8,
+                          ),
                           Colors.transparent,
                         ],
                       ),
@@ -690,14 +706,18 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                     left: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                        color: AppColors.darkSurfaceContainerLow
-                            .withValues(alpha: 0.9),
+                        color: AppColors.darkSurfaceContainerLow.withValues(
+                          alpha: 0.9,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.darkOutlineVariant
-                              .withValues(alpha: 0.4),
+                          color: AppColors.darkOutlineVariant.withValues(
+                            alpha: 0.4,
+                          ),
                         ),
                       ),
                       child: const Row(
@@ -891,13 +911,16 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.darkSurfaceContainerHigh,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppColors.darkOutlineVariant
-                                .withValues(alpha: 0.3),
+                            color: AppColors.darkOutlineVariant.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                         ),
                         child: Text(
@@ -912,10 +935,13 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color:
-                              AppColors.tertiaryContainer.withValues(alpha: 0.3),
+                          color: AppColors.tertiaryContainer.withValues(
+                            alpha: 0.3,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: AppColors.tertiary.withValues(alpha: 0.2),
@@ -948,50 +974,84 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                   ),
                 ],
               ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              // Micro Progress Ring
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CustomPaint(
-                      size: const Size(50, 50),
-                      painter: _MicroRingPainter(progress: goal.progress),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  // Micro Progress Ring
+                  SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          size: const Size(50, 50),
+                          painter: _MicroRingPainter(progress: goal.progress),
+                        ),
+                        Text(
+                          '${(goal.progress * 100).toInt()}%',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkOnSurface,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '${(goal.progress * 100).toInt()}%',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkOnSurface,
-                      ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          goal.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkOnSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '4 of 5 sessions logged this week',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.darkOutline,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.darkSurfaceContainer,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColors.darkOutlineVariant.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
                   children: [
-                    Text(
-                      goal.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkOnSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '4 of 5 sessions logged this week',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.darkOutline,
+                    const Icon(Icons.spa, size: 16, color: AppColors.secondary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '“${goal.affirmation}”',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.darkOnSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -999,44 +1059,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.darkSurfaceContainer,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.darkOutlineVariant.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.spa,
-                  size: 16,
-                  color: AppColors.secondary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '“${goal.affirmation}”',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontStyle: FontStyle.italic,
-                      color: AppColors.darkOnSurfaceVariant,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   Widget _buildEmptyGoalsCard(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../core/constants/app_colors.dart';
 import 'goals_screen.dart';
 import 'profile_screen.dart';
@@ -36,10 +37,7 @@ class _MainScaffoldScreenState extends State<MainScaffoldScreen> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.darkSurface.withValues(alpha: 0.95),
@@ -55,11 +53,7 @@ class _MainScaffoldScreenState extends State<MainScaffoldScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(
-                  index: 0,
-                  icon: Icons.light_mode,
-                  label: 'Today',
-                ),
+                _buildNavItem(index: 0, icon: Icons.light_mode, label: 'Today'),
                 _buildNavItem(
                   index: 1,
                   icon: Icons.track_changes,
@@ -75,11 +69,7 @@ class _MainScaffoldScreenState extends State<MainScaffoldScreen> {
                   icon: Icons.donut_large,
                   label: 'Progress',
                 ),
-                _buildNavItem(
-                  index: 4,
-                  icon: Icons.person,
-                  label: 'Profile',
-                ),
+                _buildNavItem(index: 4, icon: Icons.person, label: 'Profile'),
               ],
             ),
           ),

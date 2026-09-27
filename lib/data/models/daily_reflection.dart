@@ -53,7 +53,8 @@ class DailyReflection {
       mood: map['mood'] as String? ?? 'great',
       reflectionText: map['reflection_text'] as String? ?? '',
       completedRitual: map['completed_ritual'] as bool? ?? false,
-      createdAt: map['created_at'] as String? ?? DateTime.now().toIso8601String(),
+      createdAt:
+          map['created_at'] as String? ?? DateTime.now().toIso8601String(),
     );
   }
 
